@@ -1,0 +1,1235 @@
+<!doctype html>
+<html lang="zh-Hant-TW" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>第七組 CAD/CAE/CAM</title>
+<style>
+:root{
+  --bg:#F4EFE3; --paper:#FBF8F1; --ink:#3A3833; --muted:#8E8878; --line:#CDC4AE;
+  --gold:#BF8E22; --blue:#3A72CB; --red:#C0443B; --green:#4D9663;
+  color-scheme:light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#23221F; --paper:#2D2B27; --ink:#ECE6D8; --muted:#A39C8B; --line:#57524A;
+    --gold:#E0AE45; --blue:#6E9BE6; --red:#E06A5F; --green:#74BC88; color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#23221F; --paper:#2D2B27; --ink:#ECE6D8; --muted:#A39C8B; --line:#57524A;
+  --gold:#E0AE45; --blue:#6E9BE6; --red:#E06A5F; --green:#74BC88; color-scheme:dark;
+}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+html,body{height:100%;margin:0;background:var(--bg);overflow:hidden;cursor:default}
+body{font-family:"Microsoft JhengHei","微軟正黑體","PingFang TC","Noto Sans TC","Heiti TC",sans-serif}
+#stage{position:absolute;left:50%;top:50%;width:1600px;height:900px;transform-origin:center}
+#svg{position:absolute;inset:0;width:1600px;height:900px;display:block;overflow:visible}
+#svg text{font-family:inherit}
+.o{transition:transform .8s cubic-bezier(.45,.05,.2,1),opacity .5s ease;transform-box:view-box;transform-origin:0 0}
+.a{opacity:0;transform:translateY(14px) scale(.94);transition:opacity .45s ease,transform .6s cubic-bezier(.3,1.35,.5,1);transform-box:fill-box;transform-origin:center}
+.a.on{opacity:1;transform:none}
+.cell{opacity:0;transition:opacity .35s ease}
+.on .cell{opacity:1}
+.spin{animation:spin 7s linear infinite;transform-box:fill-box;transform-origin:center}
+@keyframes spin{to{transform:rotate(360deg)}}
+.a.stamp{transform:scale(1.8);transition:opacity .2s ease,transform .38s cubic-bezier(.5,1.6,.6,1)}
+.a.stamp.on{transform:none}
+.draw{transition:stroke-dashoffset 1.6s ease}
+.on .draw{stroke-dashoffset:0!important}
+.grow{transform:scaleX(0);transform-box:fill-box;transform-origin:left center;transition:transform 1s cubic-bezier(.3,1,.4,1)}
+.on .grow{transform:none}
+.media{position:absolute;opacity:0;transition:opacity .5s ease;border-radius:12px;overflow:hidden;pointer-events:none}
+.media.on{opacity:1}
+.media img{width:100%;height:100%;object-fit:contain;display:block;background:var(--paper)}
+.media .ph{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:10px;
+  background:var(--paper);color:var(--muted);font-size:24px;border:3px dashed var(--line);border-radius:12px;text-align:center;padding:20px}
+.media .ph b{color:var(--ink);font-size:28px}
+.media.missing img{display:none}
+.media.missing .ph{display:flex}
+.panel{position:absolute;opacity:0;transition:opacity .5s ease;pointer-events:none;color:var(--ink)}
+.panel.on{opacity:1}
+#reading{left:70px;top:132px;width:1460px;--rfs:24px}
+.rhead{display:grid;grid-template-columns:76px 1fr 1fr;gap:30px;padding:0 16px 6px;color:var(--muted);font-size:20px}
+.rrow{display:grid;grid-template-columns:76px 1fr 1fr;gap:30px;align-items:start;padding:8px 16px;border-radius:12px;
+  opacity:.35;transition:opacity .4s ease,background .4s ease,box-shadow .4s ease}
+.rrow.done{opacity:.6}
+.rrow.hide{display:none}
+.rrow.cur{opacity:1;background:var(--paper);box-shadow:inset 5px 0 0 var(--gold)}
+.rrow p{margin:0;font-size:var(--rfs);line-height:1.38}
+.rrow .en{font-family:"Segoe UI",Arial,sans-serif}
+.rrow .ph-text{color:var(--muted);border:2px dashed var(--line);border-radius:8px;padding:4px 10px}
+.rtag{font-weight:700;font-size:20px;border:2px solid currentColor;border-radius:8px;text-align:center;padding:2px 0;margin-top:3px}
+.t-CAD{color:var(--blue)} .t-CAM{color:var(--green)} .t-CAE{color:var(--gold)}
+#vocab{left:110px;top:150px;width:1380px;display:grid;grid-template-columns:1fr 1.15fr;gap:60px}
+.vcol{opacity:.35;transition:opacity .4s ease}
+.vcol.cur{opacity:1}
+.vcol h3{margin:0 0 14px;font-size:30px;color:var(--gold)}
+.vcol ol{margin:0;padding-left:44px;font-size:24px;line-height:1.62}
+.vcol ol.alpha{list-style:lower-alpha}
+.vcol li b{font-family:"Segoe UI",Arial,sans-serif;font-weight:600;margin-right:16px}
+.vcol li span{color:var(--ink)} .vcol li i{color:var(--muted);font-style:normal;font-size:18px;margin-left:10px}
+.still .o,.still .a,.still .cell,.still #vlayer,.still .draw,.still .grow,.still .media{transition:none!important}
+#vlayer{position:absolute;left:320px;top:110px;width:960px;height:540px;border-radius:14px;overflow:hidden;
+  border:2px solid var(--line);background:#141414;opacity:0;transform:scale(.96);transition:opacity .5s ease,transform .6s ease}
+#vlayer.on{opacity:1;transform:none}
+#vlayer video{width:100%;height:100%;object-fit:contain;display:block}
+#vph{position:absolute;inset:0;display:none;align-items:center;justify-content:center;flex-direction:column;gap:14px;
+  background:var(--paper);color:var(--muted);font-size:26px;border:3px dashed var(--line);border-radius:12px}
+#vph b{color:var(--ink);font-size:30px}
+#notes{position:fixed;left:0;right:0;bottom:0;padding:14px 28px calc(14px + env(safe-area-inset-bottom,0px));
+  background:rgba(30,29,26,.88);color:#F4EFE3;font-size:22px;line-height:1.6;display:none;z-index:5}
+#notes small{opacity:.6;margin-right:12px}
+#hint{position:fixed;left:0;right:0;bottom:calc(18px + env(safe-area-inset-bottom,0px));text-align:center;color:var(--muted);font-size:15px;transition:opacity .4s}
+@media (prefers-reduced-motion: reduce){
+  .o,.a,.cell,#vlayer,.draw,.grow,.media{transition-duration:.01s!important}
+  .spin{animation:none}
+}
+</style>
+</head>
+<body class="still">
+<div id="stage">
+  <svg id="svg" viewBox="0 0 1600 900" aria-label="簡報畫面">
+    <defs>
+      <clipPath id="carclip"><path d="M10 85 L10 62 Q12 50 30 48 L84 44 L122 14 Q128 8 140 8 L214 8 Q228 8 238 18 L268 46 L300 52 Q312 55 312 68 L312 85 Z"/></clipPath>
+    </defs>
+  </svg>
+  <div id="vlayer">
+    <video id="vid" src="opening.mp4" preload="auto" playsinline></video>
+    <div id="vph"><b>開場影片</b><span>把影片命名為 opening.mp4，和這個檔案放在同一個資料夾</span></div>
+  </div>
+</div>
+<div id="notes"></div>
+<div id="hint">→ 或空白鍵：下一步　← ：上一步　N：講稿　F：全螢幕</div>
+
+<script>
+/* =====================================================================
+   課本重點：把課本的句子貼在反引號 ` ` 中間（取代「貼上：…」那一行）。
+   en = 英文原文，zh = 課本的中文翻譯。一組 = 簡報上的一列，一個點擊。
+   ===================================================================== */
+const READING = [
+  {tag: 'CAD', en: `Computer-aided-design (CAD) is the technology concerned with the use of computers to support the construction, alteration, analysis, and optimization of a design. Any computer program that embodies computer graphics and application program facilitating engineering functions in the design process is categorized as CAD software.`, zh: `電腦輔助設計(CAD)是使用電腦来支援設計的建構、修改、分析和最佳化的技術。任何電腦程式包含電腦繪圖功能，以及在設計過程中，能夠幫助工程設計的應用程式，都可被歸類為CAD軟體。`},
+  {tag: 'CAD', en: `The most fundamental role of CAD is to define and delineate the geometry of design for mechanical parts, architecture structures, electronic circuits, building layouts, and so on.`, zh: `CAD所扮演最基本的角色就是定義和描述機械零件、建築结構、電子電路、建築物配置等幾何設計。`},
+  {tag: 'CAM', en: `Computer-aided-manufacturing (CAM) is the technology related to the use of computers to plan, manage, supervise, and control of manufacturing operations via computer interface with all the production resources.`, zh: `電腦輔助製造(CAM)是經由和所有生產资源以介面速结的電腦来計畫、管理、監測與控制整個製造過程。`},
+  {tag: 'CAM', en: `One of the most mature areas of CAM is computer numerical control or CNC.`, zh: `應用CAM最成熟的领域就是電腦數值控制，或者稱為CNC。`},
+  {tag: 'CAM', en: `Another noteworthy CAM function is the programming of robots. Robots may perform individual task such as welding, assembling, or carrying parts in the machine shop.`, zh: `另一個值得注意的CAM功能，就是機器人程式設計，機器人可以執行工廠裡像銲接、组装、搬運等個別作業。`},
+  {tag: 'CAE', en: `Computer-aided-engineering (CAE) is the technology involves using computer systems to analyze CAD geometry, Designers are, then, allowed to simulate and study the performance of various designs.`, zh: `電腦輔助工程(CAE)是使用電腦系统来分析CAD幾何技術, 設計者因此可以模擬與研究不同設計的表现。`},
+  {tag: 'CAE', en: `Logic-timing software, simulating the operation of complex electronic circuits, is also a CAE tool example.`, zh: `模擬複雏電子電路操作的邏辑計時軟體，也是CAE工具的一個例子。`}
+];
+/* 課本 Vocabulary 與 Terminology：[英文, 中文, 詞性] */
+const VOCAB = [
+  ['manipulate', '處理、操作', 'v.'], ['customized', '客製化的', 'adj.'], ['subsequent', '後續的', 'adj.'],
+  ['supervise', '監督', 'v.'], ['weld', '焊接', 'n./v.'], ['workcell', '小型獨立工作站', 'n.'],
+  ['simulation', '模擬', 'n.'], ['refinement', '改良', 'n.'], ['kinematics', '運動學', 'n.'],
+  ['linkage', '連接、聯繫、連鎖', 'n.'], ['displacement', '位移', 'n.'], ['mechanism', '機構', 'n.']
+];
+const TERMS = [
+  ['computer-aided design (CAD)', '電腦輔助設計'], ['tolerance analysis', '公差分析'], ['finite-element modeling', '有限元素模型'],
+  ['geometric design', '幾何設計'], ['electronic circuit', '電子電路'], ['computer-aided manufacturing (CAM)', '電腦輔助製造'],
+  ['computer interface', '電腦介面'], ['finished part', '零件成品'], ['computer-aided engineering (CAE)', '電腦輔助工程']
+];
+/* ===================================================================== */
+const NS = 'http://www.w3.org/2000/svg';
+const svg = document.getElementById('svg');
+const C = {ink:'var(--ink)', muted:'var(--muted)', line:'var(--line)', gold:'var(--gold)', blue:'var(--blue)', red:'var(--red)', green:'var(--green)', paper:'var(--paper)', bg:'var(--bg)'};
+
+function el(name, attrs = {}, parent) {
+  const e = document.createElementNS(NS, name);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+function paint(e, {fill = 'none', stroke = null, w = 3, dash = null, cap = 'round'} = {}) {
+  e.style.fill = fill;
+  if (stroke) { e.style.stroke = stroke; e.style.strokeWidth = w; e.style.strokeLinecap = cap; e.style.strokeLinejoin = 'round'; }
+  if (dash) e.style.strokeDasharray = dash;
+  return e;
+}
+
+/* ---------- beat engine ---------- */
+const items = [];
+function item({x = 0, y = 0, s = 1, from = 0, to = 999, pos = null, delay = 0, op = null, cls = null}) {
+  const o = el('g', {class: 'o'}, svg);
+  const a = el('g', {class: 'a'}, o);
+  if (cls) a.classList.add(cls);
+  items.push({o, a, x, y, s, from, to, pos, delay, op});
+  return a;
+}
+
+/* ---------- drawing helpers ---------- */
+function text(parent, str, {x = 0, y = 0, size = 26, fill = C.ink, weight = 400, anchor = 'middle'} = {}) {
+  const t = el('text', {x, y, 'font-size': size, 'font-weight': weight, 'text-anchor': anchor, 'dominant-baseline': 'central'}, parent);
+  t.style.fill = fill;
+  t.textContent = str;
+  return t;
+}
+function tag(parent, str, color, {x = 0, y = 0, size = 24} = {}) {
+  const g = el('g', {}, parent);
+  const r = paint(el('rect', {rx: 8, ry: 8}, g), {fill: C.paper, stroke: color, w: 2});
+  const t = text(g, str, {x, y, size, fill: color});
+  const w = t.getComputedTextLength();
+  const px = size * 0.6, h = size * 1.7;
+  r.setAttribute('x', x - w / 2 - px); r.setAttribute('y', y - h / 2);
+  r.setAttribute('width', w + 2 * px); r.setAttribute('height', h);
+  return g;
+}
+function arrow(parent, x1, y1, x2, y2, color, w = 3) {
+  const g = el('g', {}, parent);
+  paint(el('path', {d: `M${x1} ${y1} L${x2} ${y2}`}, g), {stroke: color, w});
+  const ang = Math.atan2(y2 - y1, x2 - x1), L = 14, sp = 0.45;
+  const p1 = [x2 - L * Math.cos(ang - sp), y2 - L * Math.sin(ang - sp)];
+  const p2 = [x2 - L * Math.cos(ang + sp), y2 - L * Math.sin(ang + sp)];
+  paint(el('path', {d: `M${p1[0]} ${p1[1]} L${x2} ${y2} L${p2[0]} ${p2[1]}`}, g), {stroke: color, w});
+  return g;
+}
+function cross(parent, cx, cy, size, color, w = 8) {
+  const g = el('g', {transform: `rotate(-6 ${cx} ${cy})`}, parent);
+  const h = size / 2;
+  paint(el('path', {d: `M${cx - h} ${cy - h} L${cx + h} ${cy + h} M${cx + h} ${cy - h} L${cx - h} ${cy + h}`}, g), {stroke: color, w});
+  return g;
+}
+const CAR = 'M10 85 L10 62 Q12 50 30 48 L84 44 L122 14 Q128 8 140 8 L214 8 Q228 8 238 18 L268 46 L300 52 Q312 55 312 68 L312 85 Z';
+const CAR_CRUSHED = 'M52 85 L52 70 L62 62 L56 55 L90 44 L122 14 Q128 8 140 8 L214 8 Q228 8 238 18 L268 46 L300 52 Q312 55 312 68 L312 85 Z';
+function car(parent, {stroke = C.muted, dash = null, crushed = false, w = 3} = {}) {
+  const g = el('g', {}, parent);
+  paint(el('path', {d: crushed ? CAR_CRUSHED : CAR}, g), {stroke, w, dash});
+  paint(el('path', {d: crushed ? 'M128 18 L176 18 L176 42 L104 42 Z' : 'M128 18 L176 18 L176 42 L98 42 Z'}, g), {stroke, w: w - 1, dash});
+  paint(el('path', {d: 'M186 18 L222 18 Q230 18 236 26 L252 42 L186 42 Z'}, g), {stroke, w: w - 1, dash});
+  if (crushed) paint(el('path', {d: 'M52 70 L66 76 L54 81'}, g), {stroke, w: w - 1});
+  for (const cx of [crushed ? 92 : 68, 256]) paint(el('circle', {cx, cy: 86, r: 20}, g), {fill: C.bg, stroke, w, dash});
+  return g;
+}
+function heatCar(parent) {
+  const g = el('g', {}, parent);
+  const cells = el('g', {'clip-path': 'url(#carclip)'}, g);
+  const stops = [[192, 68, 59], [191, 142, 34], [77, 150, 99], [58, 114, 203]];
+  const mix = t => {
+    const seg = Math.min(2, Math.floor(t * 3)), f = t * 3 - seg;
+    const a = stops[seg], b = stops[seg + 1];
+    return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * f)).join(',')})`;
+  };
+  let col = 0;
+  for (let x = 10; x < 312; x += 13, col++) {
+    for (let y = 6; y < 86; y += 13) {
+      const t = Math.min(1, Math.max(0, (x - 10) / 302 + (Math.random() - 0.5) * 0.12));
+      const r = el('rect', {x, y, width: 11, height: 11, rx: 2, class: 'cell'}, cells);
+      r.style.fill = mix(t);
+      r.style.transitionDelay = (200 + col * 40) + 'ms';
+    }
+  }
+  car(g, {stroke: C.ink});
+  return g;
+}
+function dummy(parent, color) {
+  const g = el('g', {}, parent);
+  paint(el('circle', {cx: 0, cy: -62, r: 12}, g), {stroke: color, w: 4});
+  paint(el('path', {d: 'M0 -48 L0 -12 M0 -38 L-22 -22 M0 -38 L22 -22 M0 -12 L-16 18 M0 -12 L16 18'}, g), {stroke: color, w: 4});
+  return g;
+}
+function loop(parent, cx, cy, r, color) {
+  const g = el('g', {class: 'spin'}, parent);
+  paint(el('circle', {cx, cy, r}, g), {stroke: color, w: 3, dash: '10 8'});
+  paint(el('path', {d: `M${cx - 9} ${cy - r - 9} L${cx + 3} ${cy - r} L${cx - 9} ${cy - r + 9}`}, g), {stroke: color, w: 3});
+  paint(el('path', {d: `M${cx + 9} ${cy + r - 9} L${cx - 3} ${cy + r} L${cx + 9} ${cy + r + 9}`}, g), {stroke: color, w: 3});
+  return g;
+}
+function block(parent, label, zh, color) {
+  paint(el('rect', {x: 0, y: 0, width: 340, height: 300, rx: 18}, parent), {fill: C.paper, stroke: color, w: 3});
+  text(parent, label, {x: 28, y: 46, size: 40, weight: 700, fill: color, anchor: 'start'});
+  text(parent, zh, {x: 28, y: 84, size: 22, fill: C.muted, anchor: 'start'});
+}
+
+/* ================= SCENES ================= */
+
+/* B0  title */
+{
+  const t = item({from: 0, to: 1});
+  text(t, 'CAD　CAE　CAM', {x: 800, y: 330, size: 104, weight: 700});
+  tag(t, '第七組｜科技英文 Unit 15', C.gold, {x: 800, y: 445, size: 26});
+  paint(el('path', {d: 'M300 530 L1300 530'}, t), {stroke: C.line, w: 2});
+  [['王豐盈', 'W1134171036'], ['黃俊瑋', 'W1134171034'], ['周俊良', 'W1134171022'], ['郭登揚', 'W1134171020']].forEach(([n, id], i) => {
+    const x = 425 + i * 250;
+    text(t, n, {x, y: 595, size: 32, weight: 700});
+    text(t, id, {x, y: 640, size: 22, fill: C.muted});
+  });
+  /* today's date, read from the computer's clock when the file is opened */
+  const now = new Date(), wk = '日一二三四五六'[now.getDay()];
+  text(t, `${now.getFullYear()} 年 ${now.getMonth() + 1} 月 ${now.getDate()} 日（${wk}）`, {x: 800, y: 730, size: 24, fill: C.muted});
+}
+
+/* B1–B3  video + question */
+{
+  const q = item({from: 2, to: 4});
+  text(q, '哪一邊是真的？', {x: 800, y: 58, size: 38, weight: 700});
+  const l1 = item({from: 2, to: 3}); tag(l1, '左？', C.muted, {x: 560, y: 712, size: 28});
+  const r1 = item({from: 2, to: 3, delay: 120}); tag(r1, '右？', C.muted, {x: 1040, y: 712, size: 28});
+  const l2 = item({from: 3, to: 4}); tag(l2, '真實測試 Real test', C.blue, {x: 560, y: 712, size: 28});
+  const r2 = item({from: 3, to: 4, delay: 250}); tag(r2, '電腦模擬 Simulation', C.gold, {x: 1040, y: 712, size: 28});
+  const same = item({from: 3, to: 4, delay: 700}); tag(same, '變形看起來非常接近', C.green, {x: 800, y: 790, size: 24});
+}
+
+/* B4–B8  three reasons: roadmap chips */
+const chipX = [560, 800, 1040], chipTxt = ['① 成本', '② 時間', '③ 看得到裡面'];
+{
+  const q = item({from: 4, to: 5});
+  text(q, '為什麼還要做模擬？', {x: 800, y: 400, size: 64, weight: 700});
+  chipTxt.forEach((s, i) => {
+    const c = item({from: 4, to: 9, delay: 300 + i * 150, pos: {5: [0, -490, 1]}});
+    tag(c, s, C.muted, {x: chipX[i], y: 560, size: 26});
+  });
+  [[5, 7], [7, 8], [8, 9]].forEach(([f, t], i) => {
+    const c = item({from: f, to: t, delay: f === 5 ? 600 : 0});
+    tag(c, chipTxt[i], C.gold, {x: chipX[i], y: 70, size: 26});
+  });
+}
+
+/* B5  cost: real test */
+{
+  for (const [f, t] of [[5, 7], [8, 9]]) { const lab = item({from: f, to: t}); tag(lab, '真實測試', C.blue, {x: 400, y: 180, size: 26}); }
+  const wreck = item({from: 5, to: 7, x: 120, y: 300});
+  car(wreck, {stroke: C.muted, crushed: true});
+  const x1 = item({from: 5, to: 7, delay: 450}); cross(x1, 300, 345, 90, C.red);
+  const t1 = item({from: 5, to: 7, delay: 650}); tag(t1, '撞一次就報廢', C.red, {x: 270, y: 470});
+  const d = item({from: 5, to: 7, x: 610, y: 390, delay: 900}); dummy(d, C.gold);
+  const t2 = item({from: 5, to: 7, delay: 1050}); tag(t2, '可以重複使用', C.green, {x: 610, y: 470});
+  const big = item({from: 5, to: 7, delay: 1400});
+  text(big, '≈ US$1,000,000', {x: 400, y: 600, size: 60, weight: 700, fill: C.gold});
+  tag(big, '最高階的測試假人', C.muted, {x: 400, y: 676, size: 22});
+}
+
+/* B6  cost: simulation */
+{
+  const div = item({from: 6, to: 7});
+  paint(el('path', {d: 'M800 150 L800 720'}, div), {stroke: C.line, w: 2, dash: '8 8'});
+  const lab = item({from: 6, to: 7}); tag(lab, '電腦模擬', C.gold, {x: 1200, y: 180, size: 26});
+  const scr = item({from: 6, to: 7, x: 1000, y: 290, delay: 200});
+  paint(el('rect', {x: 0, y: 0, width: 300, height: 190, rx: 12}, scr), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('path', {d: 'M130 190 L120 222 M170 190 L180 222 M100 224 L200 224'}, scr), {stroke: C.ink, w: 3});
+  const mini = el('g', {transform: 'translate(46 52) scale(.67)'}, scr); heatCar(mini);
+  const lp = item({from: 6, to: 7, delay: 500}); loop(lp, 1385, 385, 44, C.gold);
+  const t1 = item({from: 6, to: 7, delay: 700}); tag(t1, '設計改一下，再撞一次', C.blue, {x: 1200, y: 580});
+  const t2 = item({from: 6, to: 7, delay: 950}); tag(t2, '不用毀掉任何一台車', C.green, {x: 1200, y: 645});
+}
+
+/* B7  time: number line */
+{
+  const ln = item({from: 7, to: 8});
+  paint(el('path', {d: 'M240 480 L1360 480'}, ln), {stroke: C.line, w: 3});
+  for (let x = 240; x <= 1360; x += 40) paint(el('path', {d: `M${x} 474 L${x} 486`}, ln), {stroke: C.line, w: 2});
+  text(ln, '設計', {x: 240, y: 430, size: 34, weight: 700, fill: C.blue});
+  text(ln, '做出來', {x: 1360, y: 430, size: 34, weight: 700, fill: C.gold});
+  const dot = item({from: 7, to: 8, delay: 300});
+  paint(el('circle', {cx: 520, cy: 480, r: 13}, dot), {fill: C.blue});
+  tag(dot, '先在電腦裡撞', C.blue, {x: 520, y: 540});
+  const lp = item({from: 7, to: 8, delay: 650}); loop(lp, 520, 340, 40, C.gold);
+  const w1 = item({from: 7, to: 8, delay: 850}); tag(w1, '哪裡太弱', C.red, {x: 370, y: 300});
+  const w2 = item({from: 7, to: 8, delay: 1000}); tag(w2, '先改好', C.green, {x: 670, y: 300});
+  const go = item({from: 7, to: 8, delay: 1350});
+  arrow(go, 560, 610, 1330, 610, C.gold);
+  tag(go, '再做出來', C.gold, {x: 945, y: 660});
+}
+
+/* B8  see inside */
+const HEAT0 = [1040, 300, 1];
+{
+  const div = item({from: 8, to: 9});
+  paint(el('path', {d: 'M800 150 L800 720'}, div), {stroke: C.line, w: 2, dash: '8 8'});
+  const lab = item({from: 8, to: 9}); tag(lab, '電腦模擬', C.gold, {x: 1200, y: 180, size: 26});
+  const real = item({from: 8, to: 9, x: 120, y: 300});
+  car(real, {stroke: C.muted});
+  const sens = item({from: 8, to: 9, delay: 400});
+  for (const [sx, sy] of [[178, 362], [280, 318], [392, 360]]) {
+    paint(el('circle', {cx: sx, cy: sy, r: 16}, sens), {stroke: C.red, w: 2});
+    paint(el('circle', {cx: sx, cy: sy, r: 6}, sens), {fill: C.red});
+  }
+  const t1 = item({from: 8, to: 9, delay: 650}); tag(t1, '只能在固定位置裝感測器', C.red, {x: 280, y: 480});
+  const t2 = item({from: 8, to: 9, delay: 1500}); tag(t2, '每個零件受了多少力', C.blue, {x: 1196, y: 480});
+  const t3 = item({from: 8, to: 9, delay: 1800}); tag(t3, '哪裡快要斷', C.red, {x: 1090, y: 255});
+}
+
+/* B9–B12  CAD / CAE / CAM blocks */
+const BX = {cad: 160, cae: 630, cam: 1100}, BY = 300;
+const TOP = {cad: [515, 40, .5], cae: [715, 40, .5], cam: [915, 40, .5]};
+const SMALL = {cad: [621, 20, .32], cae: [746, 20, .32], cam: [871, 20, .32]};
+const CENTER4 = {cad: [211, 330, .8], cae: [513, 330, .8], cam: [815, 330, .8], test: [1117, 330, .8]};
+const BOTTOM = {cad: [558, 690, .32], cae: [683, 690, .32], cam: [808, 690, .32], test: [933, 690, .32]};
+const RN = {CAD: 0, CAE: 0, CAM: 0}; READING.forEach(r => { if (r.tag in RN) RN[r.tag]++; });
+const S2 = 11, S3 = S2 + 17 + RN.CAD + RN.CAE + RN.CAM, S4 = S3 + 11, S5 = S4 + 15, S7 = S5 + 15, END = S7 + 7;
+const ACT = {};
+const setAct = (a, b, v) => { for (let i = a; i <= b; i++) ACT[i] = v; };
+{ const e = S2 + 3 + RN.CAD, m = e + 6 + RN.CAE; setAct(S2, e - 1, 'cad'); setAct(e, m - 1, 'cae'); setAct(m, m + 3 + RN.CAM, 'cam'); }
+ACT[S3 + 2] = 'cad'; setAct(S3 + 3, S3 + 7, 'cae'); setAct(S3 + 8, S3 + 9, 'cam');
+setAct(S4, S4 + 4, 'cam'); setAct(S4 + 5, S4 + 8, 'cae');
+function opMap(name) { const m = {}; for (let b = 0; b <= END; b++) { const v = ACT[b] || 'all'; m[b] = (v === 'all' || v === name) ? 1 : .28; } return m; }
+const hpos = name => ({10: TOP[name], [S2]: SMALL[name], [S7 + 6]: CENTER4[name], [END]: BOTTOM[name]});
+const carIn = p => [p[0] + 14 * p[2], p[1] + 110 * p[2], p[2]];
+{
+  /* the heat-map car travels from the right half into the CAE block, then to the header */
+
+  const cae = item({from: 9, x: BX.cae, y: BY, pos: hpos('cae'), op: opMap('cae'), delay: 700});
+  block(cae, 'CAE', '電腦輔助工程', C.gold);
+  tag(cae, '算', C.gold, {x: 170, y: 258, size: 28});
+
+  const cad = item({from: 9, x: BX.cad, y: BY, pos: hpos('cad'), op: opMap('cad'), delay: 200});
+  block(cad, 'CAD', '電腦輔助設計', C.blue);
+  const wire = el('g', {transform: 'translate(14 110)'}, cad); car(wire, {stroke: C.blue, dash: '7 6'});
+  tag(cad, '畫', C.blue, {x: 170, y: 258, size: 28});
+
+  const cam = item({from: 9, x: BX.cam, y: BY, pos: hpos('cam'), op: opMap('cam'), delay: 1200});
+  block(cam, 'CAM', '電腦輔助製造', C.green);
+  const cnc = el('g', {transform: 'translate(83 106) scale(.87)'}, cam);
+  paint(el('rect', {x: 75, y: 0, width: 50, height: 46, rx: 6}, cnc), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('rect', {x: 92, y: 46, width: 16, height: 40, rx: 3}, cnc), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('path', {d: 'M92 86 L100 100 L108 86'}, cnc), {stroke: C.ink, w: 3});
+  paint(el('path', {d: 'M10 108 L190 108'}, cnc), {stroke: C.gold, w: 3, dash: '6 7'});
+  paint(el('rect', {x: 0, y: 114, width: 200, height: 26, rx: 4}, cnc), {fill: C.paper, stroke: C.muted, w: 3});
+  tag(cam, '做', C.green, {x: 170, y: 258, size: 28});
+
+  const hc = item({from: 8, x: HEAT0[0], y: HEAT0[1], op: opMap('cae'), pos: {9: [BX.cae + 14, BY + 110, 1], 10: carIn(TOP.cae), [S2]: carIn(SMALL.cae), [S7 + 6]: carIn(CENTER4.cae), [END]: carIn(BOTTOM.cae)}});
+  heatCar(hc);
+
+  const a1 = item({from: 9, to: 10, delay: 500}); arrow(a1, 516, 450, 616, 450, C.muted);
+  const a2 = item({from: 9, to: 10, delay: 1000}); arrow(a2, 986, 450, 1086, 450, C.muted);
+
+  const fin = item({from: 10, to: 11, delay: 700});
+  text(fin, '模擬，能不能', {x: 800, y: 430, size: 66, weight: 700});
+  text(fin, '完全取代真的撞車？', {x: 800, y: 530, size: 66, weight: 700});
+  tag(fin, '最後回答', C.gold, {x: 800, y: 650, size: 26});
+}
+
+/* ================= EXTRA HELPERS ================= */
+const defs = svg.querySelector('defs');
+function defClip(id, inner) { const c = el('clipPath', {id}, defs); c.innerHTML = inner; }
+function G(parent, tx, ty, sc = 1) { return el('g', {transform: `translate(${tx} ${ty}) scale(${sc})`}, parent); }
+function draw(parent, d, color, w = 4, delay = 0) {
+  const pth = paint(el('path', {d, class: 'draw'}, parent), {stroke: color, w});
+  const len = pth.getTotalLength();
+  pth.style.strokeDasharray = len; pth.style.strokeDashoffset = len; pth.style.transitionDelay = delay + 'ms';
+  return pth;
+}
+function bar(parent, x, y, len, h, color, delay = 0) {
+  const r = el('rect', {x, y: y - h / 2, width: Math.max(1, len), height: h, rx: 4, class: 'grow'}, parent);
+  r.style.fill = color; r.style.transitionDelay = delay + 'ms';
+  return r;
+}
+function check(parent, cx, cy, color = C.green, sz = 1) {
+  return paint(el('path', {d: `M${cx - 14 * sz} ${cy} L${cx - 4 * sz} ${cy + 10 * sz} L${cx + 15 * sz} ${cy - 11 * sz}`}, parent), {stroke: color, w: 5});
+}
+function stampBox(parent, str, color, cx, cy, size = 40, rot = -8) {
+  const g = el('g', {transform: `rotate(${rot} ${cx} ${cy})`}, parent);
+  const r = paint(el('rect', {rx: 8}, g), {fill: 'none', stroke: color, w: 4});
+  const t = text(g, str, {x: cx, y: cy, size, weight: 700, fill: color});
+  const w = t.getComputedTextLength();
+  r.setAttribute('x', cx - w / 2 - 22); r.setAttribute('y', cy - size * .85);
+  r.setAttribute('width', w + 44); r.setAttribute('height', size * 1.7);
+  return g;
+}
+function curveArrow(parent, x1, y1, cx, cy, x2, y2, color, w = 3) {
+  const g = el('g', {}, parent);
+  paint(el('path', {d: `M${x1} ${y1} Q${cx} ${cy} ${x2} ${y2}`}, g), {stroke: color, w});
+  const ang = Math.atan2(y2 - cy, x2 - cx), L = 14, sp = .45;
+  paint(el('path', {d: `M${x2 - L * Math.cos(ang - sp)} ${y2 - L * Math.sin(ang - sp)} L${x2} ${y2} L${x2 - L * Math.cos(ang + sp)} ${y2 - L * Math.sin(ang + sp)}`}, g), {stroke: color, w});
+  return g;
+}
+const HEAT_STOPS = [[192, 68, 59], [191, 142, 34], [77, 150, 99], [58, 114, 203]];
+function heatColor(t) {
+  t = Math.min(1, Math.max(0, t));
+  const seg = Math.min(2, Math.floor(t * 3)), f = t * 3 - seg, a = HEAT_STOPS[seg], b = HEAT_STOPS[seg + 1];
+  return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * f)).join(',')})`;
+}
+function heatCells(parent, clipId, x0, y0, x1, y1, step, tFn, baseDelay = 200) {
+  const g = el('g', {'clip-path': `url(#${clipId})`}, parent);
+  let col = 0;
+  for (let x = x0; x < x1; x += step, col++) for (let y = y0; y < y1; y += step) {
+    const r = el('rect', {x, y, width: step - 2, height: step - 2, rx: 2, class: 'cell'}, g);
+    r.style.fill = heatColor(tFn(x + step / 2, y + step / 2));
+    r.style.transitionDelay = (baseDelay + col * 35) + 'ms';
+  }
+  return g;
+}
+let seed = 7;
+const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+function monitor(parent, x, y, w, h) {
+  paint(el('rect', {x, y, width: w, height: h, rx: 12}, parent), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('path', {d: `M${x + w / 2 - 20} ${y + h} L${x + w / 2 - 30} ${y + h + 30} M${x + w / 2 + 20} ${y + h} L${x + w / 2 + 30} ${y + h + 30} M${x + w / 2 - 55} ${y + h + 32} L${x + w / 2 + 55} ${y + h + 32}`}, parent), {stroke: C.ink, w: 3});
+}
+const BRACKET = 'M0 0 L64 0 L64 136 L200 136 L200 200 L0 200 Z';
+defClip('brclip', `<path d="${BRACKET}"/>`);
+function bracketMesh(parent, color, w = 1.4) {
+  const g = el('g', {'clip-path': 'url(#brclip)'}, parent);
+  let d = '';
+  for (let x = 0; x <= 200; x += 16) d += `M${x} 0 L${x} 200 `;
+  for (let y = 0; y <= 200; y += 16) d += `M0 ${y} L200 ${y} `;
+  for (let x = 0; x < 200; x += 16) for (let y = 0; y < 200; y += 16) d += `M${x} ${y + 16} L${x + 16} ${y} `;
+  paint(el('path', {d}, g), {stroke: color, w});
+  return g;
+}
+const TRUCK = 'M10 130 L10 92 Q12 76 30 74 L150 72 L182 30 Q190 20 204 20 L262 20 Q274 20 280 32 L300 72 L410 72 Q420 74 420 90 L420 130 Z';
+defClip('truckclip', `<path d="${TRUCK}"/>`);
+const VAN = 'M10 120 L10 36 Q10 18 30 18 L236 18 Q250 18 256 30 L290 78 Q300 84 300 98 L300 120 Z';
+defClip('vanclip', `<path d="${VAN}"/>`);
+function van(parent, stroke = C.ink, w = 3) {
+  const g = el('g', {}, parent);
+  paint(el('path', {d: VAN}, g), {stroke, w});
+  paint(el('path', {d: 'M236 30 L250 30 L278 72 L236 72 Z M40 30 L120 30 L120 64 L40 64 Z M210 30 L210 116'}, g), {stroke, w: w - 1});
+  for (const cx of [62, 248]) paint(el('circle', {cx, cy: 122, r: 18}, g), {fill: C.bg, stroke, w});
+  return g;
+}
+function robot(parent, color = C.ink) {
+  const g = el('g', {}, parent);
+  paint(el('rect', {x: -45, y: 0, width: 90, height: 20, rx: 4}, g), {fill: C.paper, stroke: color, w: 4});
+  paint(el('path', {d: 'M0 0 L-20 -110 L70 -160 L98 -122'}, g), {stroke: color, w: 6});
+  for (const [cx, cy] of [[0, 0], [-20, -110], [70, -160]]) paint(el('circle', {cx, cy, r: 9}, g), {fill: C.paper, stroke: color, w: 4});
+  paint(el('path', {d: 'M104 -112 L118 -104 M106 -118 L122 -122 M100 -106 L104 -90'}, g), {stroke: C.gold, w: 3});
+  return g;
+}
+function gear(parent, cx, cy, r, color) {
+  let d = '';
+  for (let i = 0; i < 16; i++) {
+    const a1 = i / 16 * Math.PI * 2, rr = i % 2 ? r : r * 1.28;
+    const a2 = (i + 1) / 16 * Math.PI * 2;
+    d += `${i ? 'L' : 'M'}${cx + rr * Math.cos(a1)} ${cy + rr * Math.sin(a1)} L${cx + rr * Math.cos(a2)} ${cy + rr * Math.sin(a2)} `;
+  }
+  const g = el('g', {}, parent);
+  paint(el('path', {d: d + 'Z'}, g), {fill: C.paper, stroke: color, w: 3});
+  paint(el('circle', {cx, cy, r: r * .35}, g), {stroke: color, w: 3});
+  return g;
+}
+function caliper(parent, x, y, color = C.blue) {
+  const g = G(parent, x, y);
+  paint(el('rect', {x: 0, y: 0, width: 160, height: 16, rx: 3}, g), {fill: C.paper, stroke: color, w: 3});
+  paint(el('path', {d: 'M0 16 L0 64 L16 64 L16 16 M84 16 L84 52 L100 52 L100 16'}, g), {fill: C.paper, stroke: color, w: 3});
+  let d = ''; for (let i = 24; i < 156; i += 12) d += `M${i} 0 L${i} 7 `;
+  paint(el('path', {d}, g), {stroke: color, w: 2});
+  return g;
+}
+function magnifier(parent, cx, cy, r, color = C.gold) {
+  paint(el('circle', {cx, cy, r}, parent), {fill: C.paper, stroke: color, w: 4});
+  paint(el('path', {d: `M${cx + r * .7} ${cy + r * .7} L${cx + r * 1.5} ${cy + r * 1.5}`}, parent), {stroke: color, w: 7});
+}
+function chip(parent, x, y, sz, color = C.ink) {
+  const g = G(parent, x, y);
+  paint(el('rect', {x: 0, y: 0, width: sz, height: sz, rx: 12}, g), {fill: C.paper, stroke: color, w: 4});
+  let d = '';
+  for (let i = 1; i <= 6; i++) { const p = sz * i / 7; d += `M${p} 0 L${p} -20 M${p} ${sz} L${p} ${sz + 20} M0 ${p} L-20 ${p} M${sz} ${p} L${sz + 20} ${p} `; }
+  paint(el('path', {d}, g), {stroke: color, w: 3});
+  paint(el('rect', {x: sz * .22, y: sz * .22, width: sz * .56, height: sz * .56, rx: 6}, g), {stroke: C.gold, w: 3});
+  let gd = ''; for (let i = 1; i < 6; i++) { const p = sz * .22 + sz * .56 * i / 6; gd += `M${p} ${sz * .22} L${p} ${sz * .78} M${sz * .22} ${p} L${sz * .78} ${p} `; }
+  paint(el('path', {d: gd}, g), {stroke: C.gold, w: 1.2});
+  return g;
+}
+defClip('waferclip', '<circle cx="0" cy="0" r="70"/>');
+function wafer(parent, cx, cy) {
+  const g = G(parent, cx, cy);
+  const gg = el('g', {'clip-path': 'url(#waferclip)'}, g);
+  let d = ''; for (let i = -70; i <= 70; i += 14) d += `M${i} -70 L${i} 70 M-70 ${i} L70 ${i} `;
+  paint(el('path', {d}, gg), {stroke: C.gold, w: 1.5});
+  paint(el('circle', {cx: 0, cy: 0, r: 70}, g), {stroke: C.ink, w: 4});
+  return g;
+}
+function plate(parent, stroke = C.ink) {
+  paint(el('rect', {x: 0, y: 0, width: 360, height: 180, rx: 4}, parent), {fill: C.paper, stroke, w: 3});
+  paint(el('circle', {cx: 180, cy: 90, r: 9}, parent), {fill: C.bg, stroke, w: 3});
+}
+function blob(parent, cx, cy, r, color, w = 3) {
+  const n = 9, pts = [];
+  for (let i = 0; i < n; i++) { const a = i / n * Math.PI * 2, rr = r * (.55 + .6 * rnd()); pts.push([cx + rr * Math.cos(a), cy + rr * Math.sin(a)]); }
+  let d = '';
+  for (let i = 0; i < n; i++) {
+    const p = pts[i], q = pts[(i + 1) % n], m = [(p[0] + q[0]) / 2, (p[1] + q[1]) / 2];
+    d += i ? `Q${p[0]} ${p[1]} ${m[0]} ${m[1]} ` : `M${m[0]} ${m[1]} `;
+  }
+  const p0 = pts[0], m0 = [(pts[n - 1][0] + p0[0]) / 2, (pts[n - 1][1] + p0[1]) / 2];
+  d += `Q${pts[0][0]} ${pts[0][1]} ${(pts[0][0] + pts[1][0]) / 2} ${(pts[0][1] + pts[1][1]) / 2} Z`;
+  paint(el('path', {d}, parent), {fill: C.paper, stroke: color, w});
+  paint(el('circle', {cx: cx + r * .15, cy: cy - r * .1, r: r * .16}, parent), {fill: C.bg, stroke: color, w: w - 1});
+}
+const ORGANIC = 'M20 220 C24 150 70 110 130 92 C190 74 236 82 268 30 L318 52 C292 104 242 126 214 166 C190 200 196 232 230 262 L190 292 C150 252 112 246 70 278 Z M126 150 C150 132 182 126 198 140 C176 156 158 178 150 196 C134 184 124 168 126 150 Z';
+function organic(parent, color = C.ink) {
+  const pth = paint(el('path', {d: ORGANIC, 'fill-rule': 'evenodd'}, parent), {fill: C.paper, stroke: color, w: 4});
+  for (const [cx, cy] of [[46, 238], [292, 46], [208, 274]]) paint(el('circle', {cx, cy, r: 11}, parent), {fill: C.bg, stroke: color, w: 3});
+  return pth;
+}
+const BONE = 'M40 50 C14 26 44 -4 68 22 L212 22 C236 -4 266 26 240 50 C266 74 236 104 212 78 L68 78 C44 104 14 74 40 50 Z';
+function legoCar(parent, x, y, color, scatter = 0) {
+  const g = G(parent, x, y);
+  const bricks = [[0, 40, 60], [60, 40, 60], [120, 40, 60], [180, 40, 60], [60, 16, 60], [120, 16, 60]];
+  bricks.forEach(([bx, by, bw], i) => {
+    let tr = '';
+    if (scatter) { const dx = (rnd() - .5) * 160 * scatter, dy = (rnd() - .7) * 110 * scatter, rot = (rnd() - .5) * 90 * scatter; tr = `translate(${dx} ${dy}) rotate(${rot} ${bx + bw / 2} ${by + 12})`; }
+    const b = el('g', {transform: tr}, g);
+    paint(el('rect', {x: bx, y: by, width: bw, height: 24, rx: 3}, b), {fill: color, stroke: C.ink, w: 2});
+    for (const sx of [bx + 10, bx + 38]) paint(el('rect', {x: sx, y: by - 6, width: 12, height: 6, rx: 1}, b), {fill: color, stroke: C.ink, w: 1.5});
+  });
+  for (const cx of [40, 200]) {
+    const tr = scatter ? `translate(${(rnd() - .5) * 120 * scatter} ${(rnd() - .3) * 40 * scatter})` : '';
+    paint(el('circle', {cx, cy: 70, r: 16, transform: tr}, g), {fill: C.ink, stroke: C.ink, w: 2});
+  }
+  return g;
+}
+const medias = [], panels = [];
+function media({src, x, y, w, h, from, to, label, optional = false}) {
+  const d = document.createElement('div');
+  d.className = 'media';
+  Object.assign(d.style, {left: x + 'px', top: y + 'px', width: w + 'px', height: h + 'px'});
+  d.innerHTML = `<img alt=""><div class="ph"><b>${label}</b><span>把圖檔命名為 ${src}，和這個檔案放在同一個資料夾</span></div>`;
+  const img = d.querySelector('img');
+  img.addEventListener('error', () => { if (optional) d.style.display = 'none'; else d.classList.add('missing'); });
+  img.src = src;
+  document.getElementById('stage').appendChild(d);
+  medias.push({d, from, to});
+}
+const MORE_NOTES = [];
+const note = (b, str) => { MORE_NOTES[b - S2] = str; };
+
+/* ================= SECTION 2  CAD → (read CAD) → CAE → (read CAE) → CAM → (read CAM) → vocabulary ================= */
+{
+  const b = S2;
+  /* CAD definition */
+  note(b, 'CAD，Computer-Aided Design，電腦輔助設計。簡單說，就是用電腦來建立、修改、分析，還有最佳化一個設計。');
+  const t = item({from: b, to: b + 1});
+  text(t, 'CAD', {x: 800, y: 330, size: 130, weight: 700, fill: C.blue});
+  tag(t, 'Computer-Aided Design', C.blue, {x: 800, y: 440, size: 28});
+  ['建立 create', '修改 modify', '分析 analyze', '最佳化 optimize'].forEach((v, i) => {
+    const c = item({from: b, to: b + 1, delay: 500 + i * 250}); tag(c, v, C.ink, {x: 440 + i * 240, y: 580, size: 26});
+  });
+  /* paper vs digital */
+  note(b + 1, '以前工程師要在紙上畫圖，改一個尺寸，可能整張圖都要重畫。有了 CAD，設計全部變成數位檔案，要改尺寸、改形狀，都快很多。');
+  const dv = item({from: b + 1, to: b + 2});
+  paint(el('path', {d: 'M800 180 L800 760'}, dv), {stroke: C.line, w: 2, dash: '8 8'});
+  const paper = item({from: b + 1, to: b + 2});
+  paint(el('path', {d: 'M290 230 L510 230 L560 280 L560 590 L290 590 Z M510 230 L510 280 L560 280'}, paper), {fill: C.paper, stroke: C.muted, w: 3});
+  paint(el('path', {d: 'M340 320 L470 320 L470 460 L340 460 Z'}, paper), {stroke: C.muted, w: 2});
+  paint(el('circle', {cx: 405, cy: 390, r: 22}, paper), {stroke: C.muted, w: 2});
+  paint(el('path', {d: 'M340 500 L470 500 M340 492 L340 508 M470 492 L470 508'}, paper), {stroke: C.muted, w: 2});
+  text(paper, '50', {x: 405, y: 528, size: 22, fill: C.muted});
+  const pt = item({from: b + 1, to: b + 2, delay: 300}); tag(pt, '改一個尺寸', C.ink, {x: 425, y: 650});
+  const px = item({from: b + 1, to: b + 2, delay: 800}); cross(px, 425, 410, 150, C.red, 10);
+  const pt2 = item({from: b + 1, to: b + 2, delay: 1000}); tag(pt2, '整張重畫', C.red, {x: 425, y: 715});
+  const mon = item({from: b + 1, to: b + 2, delay: 1400});
+  monitor(mon, 1030, 260, 300, 200);
+  paint(el('path', {d: 'M1110 300 L1250 300 L1250 420 L1110 420 Z'}, mon), {stroke: C.blue, w: 3});
+  paint(el('circle', {cx: 1180, cy: 360, r: 22}, mon), {stroke: C.blue, w: 3});
+  const mt = item({from: b + 1, to: b + 2, delay: 1700}); tag(mt, '數位檔案', C.blue, {x: 1180, y: 590});
+  const mt2 = item({from: b + 1, to: b + 2, delay: 2000}); tag(mt2, '改尺寸、改形狀：快很多', C.green, {x: 1180, y: 655});
+  /* the model is reused */
+  note(b + 2, '更重要的是，這個 CAD 模型後面還會一直被用到：CAE 拿它來做分析，CAM 拿它來產生加工路徑。所以，CAD 是整個流程的起點。');
+  const m = item({from: b + 2, to: b + 3, x: 300, y: 290, s: 1.2});
+  paint(el('path', {d: BRACKET}, m), {stroke: C.blue, w: 3, dash: '8 6'});
+  const mtag = item({from: b + 2, to: b + 3, delay: 200}); tag(mtag, 'CAD 模型', C.blue, {x: 420, y: 570});
+  const ar1 = item({from: b + 2, to: b + 3, delay: 600}); arrow(ar1, 600, 380, 880, 300, C.muted); tag(ar1, 'CAE：拿去分析', C.gold, {x: 1040, y: 290, size: 28});
+  const ar2 = item({from: b + 2, to: b + 3, delay: 900}); arrow(ar2, 600, 460, 880, 540, C.muted); tag(ar2, 'CAM：產生加工路徑', C.green, {x: 1060, y: 550, size: 28});
+  const st = item({from: b + 2, to: b + 3, delay: 1400}); tag(st, '整個流程的起點', C.blue, {x: 800, y: 700, size: 30});
+
+  /* --- the bilingual reading slide: shown at three points (CAD, CAE, CAM rows), one click per row --- */
+  const rCAD = b + 3, E2 = rCAD + RN.CAD, rCAE = E2 + 6, M2 = rCAE + RN.CAE, rCAM = M2 + 4, VB = rCAM + RN.CAM;
+  const groups = [['CAD', rCAD], ['CAE', rCAE], ['CAM', rCAM]];
+  const RB = {}, GROUP = {};
+  groups.forEach(([tg, start]) => { let k = 0; READING.forEach((r, i) => { if (r.tag === tg) { RB[i] = start + k; GROUP[i] = tg; k++; } }); });
+  const cue = {CAD: '講到 CAE 之前，我們要講出課本裡面 CAD 的重點。→ ', CAE: '講到 CAM 之前，我們要講出課本裡面 CAE 的重點。→ ', CAM: ''};
+  groups.forEach(([tg, start]) => { for (let k = 0; k < RN[tg]; k++) note(start + k, `${k === 0 ? cue[tg] : ''}念 ${tg} 第 ${k + 1} 組（先英文、再中文）`); });
+  const ORDER = Object.keys(RB).map(Number).sort((x, y) => RB[x] - RB[y]);
+  const rd = document.createElement('div');
+  rd.id = 'reading'; rd.className = 'panel';
+  const isPh = s => s.trim().startsWith('貼上');
+  rd.innerHTML = '<div class="rhead"><span></span><b>English</b><b>中文</b></div>' + ORDER.map(i => {
+    const r = READING[i];
+    return `<div class="rrow" data-i="${i}"><span class="rtag t-${r.tag}">${r.tag}</span>` +
+      `<p class="en${isPh(r.en) ? ' ph-text' : ''}"></p><p class="zh${isPh(r.zh) ? ' ph-text' : ''}"></p></div>`;
+  }).join('');
+  document.getElementById('stage').appendChild(rd);
+  const rows = [...rd.querySelectorAll('.rrow')];
+  rows.forEach(row => { const i = +row.dataset.i; row.querySelector('.en').textContent = READING[i].en.trim(); row.querySelector('.zh').textContent = READING[i].zh.trim(); });
+  const showGroup = tg => rows.forEach(r => r.classList.toggle('hide', GROUP[+r.dataset.i] !== tg));
+  const fits = () => groups.every(([tg]) => { showGroup(tg); return rd.scrollHeight <= 720; });
+  let fs = 28; rd.style.setProperty('--rfs', fs + 'px');
+  while (!fits() && fs > 14) { fs -= 1; rd.style.setProperty('--rfs', fs + 'px'); }
+  panels.push({d: rd, vis: beat => ORDER.some(i => RB[i] === beat), update(beat) {
+    const curI = ORDER.find(i => RB[i] === beat);
+    if (curI !== undefined) showGroup(GROUP[curI]);
+    rows.forEach(row => { const i = +row.dataset.i; row.classList.toggle('cur', RB[i] === beat); row.classList.toggle('done', RB[i] < beat); });
+  }});
+
+  /* --- CAE: two questions, then FEM --- */
+  note(E2, '第二個，CAE，Computer-Aided Engineering，電腦輔助工程。CAD 回答的是：它長什麼樣子？CAE 回答的是：它會不會壞？');
+  note(E2 + 1, 'CAE 最常用的方法，叫做有限元素法，Finite Element Method。想法很簡單：一個零件形狀太複雜，沒辦法直接算，');
+  note(E2 + 2, '那就把它切成很多很小的小塊。每一小塊叫做一個 element，元素。每一塊都很簡單，電腦算得出來。');
+  note(E2 + 3, '全部算完、拼回去，就知道整個零件哪裡受力最大。');
+  note(E2 + 4, '切出來的這張網子，叫做 mesh，網格。切得越細，通常越準，但電腦也要算越久。');
+  note(E2 + 5, '一台皮卡車的碰撞模型，大約切成三百萬個元素。開場那台在電腦裡撞的車，就是這樣算出來的。');
+  const BRP = [620, 230, 1.8];
+  const br = item({from: E2, to: E2 + 5, x: 680, y: 300, s: 1.2, pos: {[E2 + 1]: BRP}});
+  paint(el('path', {d: BRACKET}, br), {fill: C.paper, stroke: C.ink, w: 3});
+  const q1 = item({from: E2, to: E2 + 1, delay: 300}); tag(q1, 'CAD：它長什麼樣子？', C.blue, {x: 420, y: 420, size: 28});
+  const q2 = item({from: E2, to: E2 + 1, delay: 900}); tag(q2, 'CAE：它會不會壞？', C.gold, {x: 1180, y: 420, size: 28});
+  const fem = item({from: E2 + 1, to: E2 + 5}); tag(fem, 'FEM 有限元素法', C.gold, {x: 800, y: 175, size: 26});
+  const hard = item({from: E2 + 1, to: E2 + 2, delay: 500}); tag(hard, '形狀太複雜，沒辦法直接算', C.red, {x: 800, y: 650});
+  const heat = item({from: E2 + 3, to: E2 + 5, x: BRP[0], y: BRP[1], s: BRP[2]});
+  heatCells(heat, 'brclip', 0, 0, 200, 200, 16, (x, y) => Math.hypot(x - 64, y - 136) / 150, 100);
+  const mesh = item({from: E2 + 2, to: E2 + 5, x: BRP[0], y: BRP[1], s: BRP[2]});
+  bracketMesh(mesh, C.muted, 1.1);
+  paint(el('path', {d: BRACKET}, mesh), {stroke: C.ink, w: 2});
+  const elT = item({from: E2 + 2, to: E2 + 4, delay: 600});
+  paint(el('path', {d: `M${620 + 16 * 1.8} ${230 + 64 * 1.8} L${620 + 32 * 1.8} ${230 + 48 * 1.8} L${620 + 16 * 1.8} ${230 + 48 * 1.8} Z`}, elT), {fill: C.gold, stroke: C.gold, w: 2});
+  arrow(elT, 1010, 300, 690, 330, C.gold);
+  tag(elT, 'element 元素', C.gold, {x: 1130, y: 300, size: 28});
+  const hot = item({from: E2 + 3, to: E2 + 4, delay: 1000});
+  arrow(hot, 1010, 470, 760, 478, C.red); tag(hot, '受力最大', C.red, {x: 1110, y: 470, size: 28});
+  const mt3 = item({from: E2 + 4, to: E2 + 5}); arrow(mt3, 1000, 250, 900, 300, C.gold); tag(mt3, 'mesh 網格', C.gold, {x: 1100, y: 240, size: 28});
+  const cf = item({from: E2 + 4, to: E2 + 5, delay: 500});
+  paint(el('rect', {x: 1040, y: 380, width: 140, height: 140}, cf), {fill: C.paper, stroke: C.muted, w: 2});
+  paint(el('path', {d: 'M1086 380 L1086 520 M1133 380 L1133 520 M1040 426 L1180 426 M1040 473 L1180 473'}, cf), {stroke: C.muted, w: 2});
+  paint(el('rect', {x: 1240, y: 380, width: 140, height: 140}, cf), {fill: C.paper, stroke: C.gold, w: 2});
+  let fd = ''; for (let i = 1; i < 14; i++) fd += `M${1240 + i * 10} 380 L${1240 + i * 10} 520 M1240 ${380 + i * 10} L1380 ${380 + i * 10} `;
+  paint(el('path', {d: fd}, cf), {stroke: C.gold, w: 1});
+  tag(cf, '粗：快，不準', C.muted, {x: 1110, y: 570, size: 22});
+  tag(cf, '細：準，很慢', C.gold, {x: 1310, y: 570, size: 22});
+  const tr = item({from: E2 + 5, to: E2 + 6, x: 590, y: 200});
+  const tg = el('g', {'clip-path': 'url(#truckclip)'}, tr);
+  let td = ''; for (let i = 0; i <= 430; i += 12) td += `M${i} 0 L${i} 150 `; for (let j = 0; j <= 150; j += 12) td += `M0 ${j} L430 ${j} `;
+  for (let i = 0; i <= 430; i += 12) td += `M${i} 150 L${i + 150} 0 `;
+  paint(el('path', {d: td}, tg), {stroke: C.blue, w: 1});
+  paint(el('path', {d: TRUCK}, tr), {stroke: C.ink, w: 3});
+  for (const cx of [80, 340]) paint(el('circle', {cx, cy: 132, r: 26}, tr), {fill: C.bg, stroke: C.ink, w: 3});
+  const big = item({from: E2 + 5, to: E2 + 6, delay: 500});
+  text(big, '≈ 3,000,000', {x: 800, y: 480, size: 96, weight: 700, fill: C.gold});
+  tag(big, 'elements｜皮卡車碰撞模型', C.muted, {x: 800, y: 575, size: 26});
+  const big2 = item({from: E2 + 5, to: E2 + 6, delay: 1300}); tag(big2, '開場那台車，也是這樣算的', C.green, {x: 800, y: 660, size: 26});
+
+  /* --- CAM --- */
+  note(M2, '第三個，CAM，Computer-Aided Manufacturing，電腦輔助製造。設計好了，也算過不會壞，接下來要真的把它做出來。');
+  note(M2 + 1, 'CAM 最典型的應用，是 CNC 加工。CNC 是 Computer Numerical Control，電腦數值控制。CAM 軟體讀進 CAD 模型，算出刀具要走的路線，這叫 toolpath，刀具路徑。');
+  note(M2 + 2, '再把路線轉成機台看得懂的指令，叫做 G-code。');
+  note(M2 + 3, '除了 CNC，課本也提到 robot programming，機器人程式。');
+  [['畫 ✓', C.blue], ['算 ✓', C.gold], ['做 ？', C.green]].forEach(([v, c], i) => {
+    const k = item({from: M2, to: M2 + 1, delay: i * 400}); tag(k, v, c, {x: 560 + i * 240, y: 400, size: 44});
+  });
+  const cm = item({from: M2, to: M2 + 1, delay: 1300}); tag(cm, 'CAM：真的做出來', C.green, {x: 800, y: 540, size: 30});
+  const wp = item({from: M2 + 1, to: M2 + 3, pos: {[M2 + 2]: [-200, 0, 1]}});
+  paint(el('rect', {x: 560, y: 260, width: 480, height: 330, rx: 6}, wp), {fill: C.paper, stroke: C.muted, w: 2, dash: '8 6'});
+  paint(el('path', {d: 'M620 310 L980 310 L980 540 L620 540 Z'}, wp), {stroke: C.ink, w: 3});
+  paint(el('circle', {cx: 800, cy: 425, r: 50}, wp), {fill: C.bg, stroke: C.ink, w: 3});
+  draw(wp, 'M600 290 L1000 290 L1000 560 L600 560 Z', C.gold, 4, 400);
+  draw(wp, 'M800 395 A30 30 0 1 1 799.9 395', C.gold, 4, 1900);
+  const cnc = item({from: M2 + 1, to: M2 + 3}); tag(cnc, 'CNC 電腦數值控制', C.ink, {x: 800, y: 200, size: 26});
+  const tp = item({from: M2 + 1, to: M2 + 3, delay: 1200, pos: {[M2 + 2]: [-200, 0, 1]}}); tag(tp, 'toolpath 刀具路徑', C.gold, {x: 800, y: 650, size: 28});
+  const code = item({from: M2 + 2, to: M2 + 3, delay: 600});
+  arrow(code, 860, 425, 960, 425, C.muted);
+  paint(el('rect', {x: 990, y: 280, width: 330, height: 290, rx: 10}, code), {fill: C.paper, stroke: C.gold, w: 3});
+  ['G00 X0 Y0', 'G01 X360 Y0', 'G01 X360 Y230', 'G01 X0 Y230', 'G02 X30 Y0 R30'].forEach((ln, i) => {
+    const tt = text(code, ln, {x: 1020, y: 330 + i * 50, size: 26, anchor: 'start', fill: C.ink}); tt.style.fontFamily = 'Consolas, "Courier New", monospace';
+  });
+  tag(code, 'G-code', C.gold, {x: 1155, y: 640, size: 30});
+  const rb = item({from: M2 + 3, to: M2 + 4, x: 560, y: 600, s: 1.6}); robot(rb);
+  const rt = item({from: M2 + 3, to: M2 + 4, delay: 400});
+  text(rt, 'robot programming', {x: 1080, y: 380, size: 48, weight: 700});
+  tag(rt, '機器人程式', C.ink, {x: 1080, y: 460, size: 28});
+  const rt2 = item({from: M2 + 3, to: M2 + 4, delay: 900}); tag(rt2, '課本也提到', C.gold, {x: 1080, y: 550, size: 26});
+
+  /* --- vocabulary slide --- */
+  note(VB, 'Vocabulary：快速念一次，每個字英文一次、中文一次。');
+  note(VB + 1, 'Terminology：一樣快速念一次。');
+  const vc = document.createElement('div');
+  vc.id = 'vocab'; vc.className = 'panel';
+  vc.innerHTML = `<section class="vcol" data-k="0"><h3>Vocabulary</h3><ol>${VOCAB.map(([w, z, p]) => `<li><b>${w}</b><span>${z}</span><i>${p}</i></li>`).join('')}</ol></section>` +
+    `<section class="vcol" data-k="1"><h3>Terminology</h3><ol class="alpha">${TERMS.map(([w, z]) => `<li><b>${w}</b><span>${z}</span></li>`).join('')}</ol></section>`;
+  document.getElementById('stage').appendChild(vc);
+  panels.push({d: vc, vis: beat => beat >= VB && beat < VB + 2, update(beat) {
+    vc.querySelectorAll('.vcol').forEach((c, k) => c.classList.toggle('cur', beat - (VB) === k));
+  }});
+
+  /* --- the hook and the loop --- */
+  note(VB + 2, '所以，三個字記起來：CAD 是「畫」，CAE 是「算」，CAM 是「做」。');
+  note(VB + 3, '而且它們不是三個分開的東西，是同一個模型一路往下傳。畫好的拿去算，算過的拿去做。算出來不行，就回到 CAD 改，再算一次。這個「改、算、再改」的循環，就是開場講的，模擬能省錢、省時間的原因。');
+  [['畫', 'CAD', C.blue], ['算', 'CAE', C.gold], ['做', 'CAM', C.green]].forEach(([z, e, c], i) => {
+    const k = item({from: VB + 2, to: VB + 3, delay: i * 450});
+    text(k, z, {x: 500 + i * 300, y: 430, size: 170, weight: 700, fill: c});
+    tag(k, e, c, {x: 500 + i * 300, y: 590, size: 30});
+  });
+  const lp = item({from: VB + 3, to: VB + 4});
+  tag(lp, 'CAD 畫', C.blue, {x: 450, y: 420, size: 34});
+  tag(lp, 'CAE 算', C.gold, {x: 800, y: 420, size: 34});
+  arrow(lp, 535, 420, 712, 420, C.muted);
+  const lp2 = item({from: VB + 3, to: VB + 4, delay: 600});
+  curveArrow(lp2, 790, 470, 625, 600, 465, 470, C.red);
+  tag(lp2, '不行：回去改', C.red, {x: 625, y: 590, size: 24});
+  const lp3 = item({from: VB + 3, to: VB + 4, delay: 1200});
+  arrow(lp3, 888, 420, 1062, 420, C.green);
+  check(lp3, 975, 380);
+  tag(lp3, 'CAM 做', C.green, {x: 1150, y: 420, size: 34});
+  const lp4 = item({from: VB + 3, to: VB + 4, delay: 1800}); tag(lp4, '改、算、再改 → 省錢、省時間', C.gold, {x: 800, y: 720, size: 30});
+}
+
+/* ================= SECTION 3  one part, start to finish ================= */
+{
+  const b = S3;
+  note(b, '定義講完了，我們用一個很簡單的零件，從頭走一遍：一塊長方形鋁板，中間鑽一個洞。');
+  note(b + 1, '為什麼選這麼簡單的東西？因為這一題有標準答案。等一下，我們可以檢查電腦算得對不對。');
+  note(b + 2, '第一步，CAD。我們用 Fusion 360，畫一塊 200 乘 100 毫米、5 毫米厚的板子，中間開一個直徑 10 毫米的洞。');
+  note(b + 3, '第二步，CAE。這一步，我們引用 SolidWorks 官方學生教材裡，同一塊板子的分析結果。板子左右兩邊往外拉，平均應力是 100 psi。');
+  note(b + 4, '材料力學有一個經典答案：寬板中間開一個小圓洞，拉的時候，洞旁邊的應力大約是平均的三倍。這叫做應力集中，stress concentration。用公式算，這塊板子是 3.02 倍。');
+  note(b + 5, '那電腦算出來呢？教材第一次用比較粗的網格，只得到 2.5 倍，少了 16%。');
+  note(b + 6, '換成會自動加密的網格，洞旁邊切得很細，答案變成 3.2 倍，跟理論差不到 7%。');
+  note(b + 7, '所以，模擬不是按一下就對。網格太粗，它會算錯；就算切細了，也還是有幾 % 的誤差。要懂原理，才看得出來。');
+  note(b + 8, '第三步，CAM。設計確定沒問題，就切到 Fusion 360 的 Manufacture 工作區。設定原料、選一把銑刀，軟體就算出刀具路徑：一條沿著外形切，一條把洞鑽出來。');
+  note(b + 9, '軟體會先模擬刀子怎麼走，確認不會撞刀。沒問題，就輸出 G-code，拿到 CNC 機台上加工。');
+  note(b + 10, '請大家注意：這三步，用的是同一個檔案。畫的、算的、做的，都是同一個模型。這就是前面說的，CAD、CAE、CAM 一路往下傳。');
+
+  const CEN = [620, 250, 1], LEFT = [200, 330, 1], MID = [450, 320, 1];
+  const pl = item({from: b, to: b + 10, x: CEN[0], y: CEN[1], pos: {[b + 2]: LEFT, [b + 3]: MID, [b + 8]: LEFT}});
+  plate(pl);
+  const t0 = item({from: b, to: b + 2, delay: 300}); tag(t0, '一塊長方形鋁板', C.ink, {x: 800, y: 520, size: 30});
+  const t1 = item({from: b + 1, to: b + 2}); tag(t1, '有標準答案', C.green, {x: 800, y: 600, size: 30}); check(t1, 680, 600);
+  const t2 = item({from: b + 1, to: b + 2, delay: 400}); tag(t2, '可以檢查電腦算得對不對', C.muted, {x: 800, y: 670});
+
+  /* CAD dims: plate at LEFT spans x 200–560, y 330–510, hole at (380, 420) */
+  const dm = item({from: b + 2, to: b + 3, delay: 500});
+  paint(el('path', {d: 'M200 545 L560 545 M200 533 L200 557 M560 533 L560 557'}, dm), {stroke: C.blue, w: 2});
+  text(dm, '200 mm', {x: 380, y: 575, size: 26, fill: C.blue, weight: 700});
+  paint(el('path', {d: 'M590 330 L590 510 M578 330 L602 330 M578 510 L602 510'}, dm), {stroke: C.blue, w: 2});
+  text(dm, '100 mm', {x: 606, y: 420, size: 26, fill: C.blue, weight: 700, anchor: 'start'});
+  paint(el('path', {d: 'M380 410 L380 290'}, dm), {stroke: C.blue, w: 2});
+  tag(dm, 'Ø 10 mm', C.blue, {x: 380, y: 270});
+  tag(dm, '厚 5 mm', C.blue, {x: 530, y: 270});
+  const dm2 = item({from: b + 2, to: b + 3, delay: 1100}); tag(dm2, '洞 = 板寬的 1/10', C.gold, {x: 380, y: 640, size: 28});
+  media({src: 'fusion_cad.png', x: 760, y: 190, w: 720, h: 450, from: b + 2, to: b + 3, label: 'Fusion 360 CAD 截圖'});
+  const fz = item({from: b + 2, to: b + 3, delay: 300}); tag(fz, 'Fusion 360', C.blue, {x: 1120, y: 690, size: 26});
+
+  /* CAE: plate at MID spans x 450–810, y 320–500, hole at (630, 410) */
+  const src = item({from: b + 3, to: b + 8});
+  text(src, '資料來源：SolidWorks Simulation 官方學生教材', {x: 800, y: 160, size: 22, fill: C.muted});
+  text(src, '教材的板子是 20 × 20 in 鋼板，洞一樣是板寬的 1/10', {x: 800, y: 198, size: 20, fill: C.muted});
+  const pull = item({from: b + 3, to: b + 8, delay: 300});
+  arrow(pull, 440, 410, 330, 410, C.blue, 4); arrow(pull, 820, 410, 930, 410, C.blue, 4);
+  tag(pull, '平均 100 psi', C.blue, {x: 630, y: 560, size: 28});
+  const hs = item({from: b + 4, to: b + 8, delay: 200});
+  for (const cy of [397, 423]) { paint(el('circle', {cx: 630, cy, r: 5}, hs), {fill: C.red}); paint(el('circle', {cx: 630, cy, r: 10}, hs), {stroke: C.red, w: 2}); }
+  tag(hs, '應力集中 stress concentration', C.red, {x: 630, y: 268, size: 24});
+  const RX = 1100, U = 340 / 3.22;
+  [[b + 4, '理論', 3.02, C.gold, ''], [b + 5, '粗網格', 2.54, C.red, '少了 16%'], [b + 6, '細網格', 3.22, C.blue, '差不到 7%']].forEach(([f, lab, v, c, n2], i) => {
+    const y = 330 + i * 120;
+    const r = item({from: f, to: b + 8, delay: f === b + 4 ? 700 : 300});
+    text(r, lab, {x: RX - 20, y, size: 28, anchor: 'end', fill: C.ink});
+    bar(r, RX, y, v * U, 34, c, 200);
+    text(r, v.toFixed(2), {x: RX + v * U + 16, y, size: 40, weight: 700, anchor: 'start', fill: c});
+    if (n2) tag(r, n2, i === 2 ? C.green : C.red, {x: RX + 170, y: y + 50, size: 22});
+  });
+  const refl = item({from: b + 4, to: b + 8, delay: 1300});
+  paint(el('path', {d: `M${RX + 3.02 * U} 290 L${RX + 3.02 * U} 650`}, refl), {stroke: C.gold, w: 2, dash: '6 6'});
+  const cm = item({from: b + 5, to: b + 6, x: MID[0], y: MID[1]});
+  let cd = ''; for (let i = 45; i < 360; i += 45) cd += `M${i} 0 L${i} 180 `; for (let j = 45; j < 180; j += 45) cd += `M0 ${j} L360 ${j} `;
+  paint(el('path', {d: cd}, cm), {stroke: C.red, w: 1.6});
+  const fm = item({from: b + 6, to: b + 8, x: MID[0], y: MID[1]});
+  defClip('nearhole', '<circle cx="180" cy="90" r="42"/>');
+  let fd2 = ''; for (let i = 15; i < 360; i += 15) fd2 += `M${i} 0 L${i} 180 `; for (let j = 15; j < 180; j += 15) fd2 += `M0 ${j} L360 ${j} `;
+  paint(el('path', {d: fd2}, fm), {stroke: C.blue, w: .9});
+  const near = el('g', {'clip-path': 'url(#nearhole)'}, fm);
+  let nd = ''; for (let i = 136; i < 226; i += 4) nd += `M${i} 46 L${i} 134 `; for (let j = 46; j < 136; j += 4) nd += `M136 ${j} L224 ${j} `;
+  paint(el('path', {d: nd}, near), {stroke: C.blue, w: .7});
+  paint(el('circle', {cx: 180, cy: 90, r: 9}, fm), {fill: C.bg, stroke: C.ink, w: 3});
+  const stp = item({from: b + 7, to: b + 8, cls: 'stamp'}); stampBox(stp, '不是按一下就對', C.red, 1240, 740, 40);
+
+  /* CAM: plate back at LEFT */
+  const tpth = item({from: b + 8, to: b + 10});
+  draw(tpth, 'M180 310 L580 310 L580 530 L180 530 Z', C.gold, 4, 400);
+  draw(tpth, 'M380 404 A16 16 0 1 1 379.9 404', C.gold, 4, 1900);
+  const tpt = item({from: b + 8, to: b + 10, delay: 800}); tag(tpt, 'toolpath', C.gold, {x: 380, y: 600, size: 28});
+  media({src: 'fusion_cam.png', x: 760, y: 190, w: 720, h: 450, from: b + 8, to: b + 9, label: 'Fusion 360 CAM 截圖'});
+  const gc = item({from: b + 9, to: b + 10});
+  tag(gc, '先模擬：不會撞刀', C.green, {x: 900, y: 260, size: 26}); check(gc, 760, 260);
+  arrow(gc, 620, 420, 760, 420, C.muted);
+  paint(el('rect', {x: 780, y: 335, width: 260, height: 170, rx: 10}, gc), {fill: C.paper, stroke: C.gold, w: 3});
+  ['G01 X20 Y0', 'G01 X20 Y20', 'G02 …'].forEach((ln, i) => { const tt = text(gc, ln, {x: 805, y: 375 + i * 46, size: 24, anchor: 'start'}); tt.style.fontFamily = 'Consolas, "Courier New", monospace'; });
+  tag(gc, 'G-code', C.gold, {x: 910, y: 555, size: 26});
+  const gc2 = item({from: b + 9, to: b + 10, delay: 700});
+  arrow(gc2, 1060, 420, 1180, 420, C.muted);
+  const cn = G(gc2, 1210, 310, 1);
+  paint(el('rect', {x: 75, y: 0, width: 50, height: 46, rx: 6}, cn), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('rect', {x: 92, y: 46, width: 16, height: 40, rx: 3}, cn), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('path', {d: 'M92 86 L100 100 L108 86'}, cn), {stroke: C.ink, w: 3});
+  paint(el('rect', {x: 0, y: 114, width: 200, height: 26, rx: 4}, cn), {fill: C.paper, stroke: C.muted, w: 3});
+  tag(gc2, 'CNC 加工', C.green, {x: 1310, y: 510, size: 26});
+
+  /* same model flows */
+  [['畫', C.blue], ['算', C.gold], ['做', C.green]].forEach(([z, c], i) => {
+    const k = item({from: b + 10, to: b + 11, delay: i * 500});
+    const pg = G(k, 383 + i * 350, 320, .4); plate(pg, c);
+    tag(k, z, c, {x: 455 + i * 350, y: 460, size: 40});
+    if (i) arrow(k, 190 + i * 350, 356, 370 + i * 350, 356, C.muted);
+  });
+  const fl = item({from: b + 10, to: b + 11, delay: 1600}); tag(fl, '同一個模型，一路往下傳', C.gold, {x: 800, y: 600, size: 30});
+}
+
+/* ================= SECTION 4  industry ================= */
+{
+  const b = S4;
+  note(b, '接下來看業界怎麼用。機台很聽話，程式寫什麼，它就做什麼。');
+  note(b + 1, '程式錯了，它也會很準確地做錯。');
+  note(b + 2, '這種事，大車廠也會遇到。2017 年，賓士在德國的工廠生產 Sprinter 廂型車，焊接用的是機器人。機器人的程式，也是 CAM 的一部分。');
+  note(b + 3, '為了準備換新車款，機器人廠商先改了軟體設定。結果有兩台焊接機器人，在 A 柱附近漏掉了幾個點焊。這些焊點，負責把車門框和鉸鏈補強件接在一起。');
+  note(b + 4, '從 9 月 11 號到 10 月 11 號，整整一個月，才在廠內發現。');
+  note(b + 5, '問題來了：少了幾個焊點，撞車的時候會不會出事？總不能每台車都拿去撞。所以他們用 CAE，做碰撞模擬。');
+  note(b + 6, '第一次模擬的結論是：整體來說，沒什麼影響。');
+  note(b + 7, '但他們沒有停在這裡。他們抽檢真正的車，量焊接品質，把量到的資料放回模擬，再算一次。');
+  note(b + 8, '這一次的結論是：撞車時表現變差的可能，沒辦法排除。');
+  note(b + 9, '2018 年 4 月，賓士決定召回。');
+  note(b + 10, '估計真正少焊的只有大約 5%，但分不出是哪幾台，所以美國的 153 台，全部召回。');
+  note(b + 11, '這個案例裡，CAM 出了錯，CAE 找出風險。而讓答案改變的，是真實量到的資料。');
+  note(b + 12, '最後講我們電機系比較熟的半導體。晶片也有自己的 CAD 和 CAE，統稱 EDA，Electronic Design Automation，電子設計自動化。');
+  note(b + 13, '為什麼一定要靠電腦？NVIDIA 2024 年發表的 B200，用台積電的製程生產，裡面有 2080 億個電晶體。');
+  note(b + 14, '這種東西不可能用手畫，做錯一次的代價也太高。所以一樣是先畫、再算，確認沒問題，才交給晶圓廠做。');
+
+  /* CNC does exactly what it's told */
+  const X0 = 420, PX = 1.52;  /* 0 mm at x=420, 1 mm = 1.52 px */
+  const mach = item({from: b, to: b + 2});
+  paint(el('rect', {x: 360, y: 600, width: 900, height: 30, rx: 4}, mach), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('rect', {x: X0, y: 540, width: 300, height: 60, rx: 3}, mach), {fill: C.paper, stroke: C.muted, w: 3});
+  paint(el('rect', {x: 900, y: 500, width: 60, height: 100, rx: 3}, mach), {fill: C.paper, stroke: C.ink, w: 3});
+  tag(mach, '夾具', C.muted, {x: 1010, y: 520, size: 20});
+  let rd = ''; for (let mm = 0; mm <= 500; mm += 50) rd += `M${X0 + mm * PX} 645 L${X0 + mm * PX} 660 `;
+  paint(el('path', {d: `M${X0} 652 L${X0 + 500 * PX} 652 ` + rd}, mach), {stroke: C.line, w: 2});
+  text(mach, '0', {x: X0, y: 685, size: 20, fill: C.muted}); text(mach, '50', {x: X0 + 50 * PX, y: 685, size: 20, fill: C.muted}); text(mach, '500', {x: X0 + 500 * PX, y: 685, size: 20, fill: C.muted});
+  const tool = item({from: b, to: b + 2, x: X0 + 50 * PX, y: 0, pos: {[b + 1]: [905, 0, 1]}});
+  paint(el('rect', {x: -25, y: 380, width: 50, height: 80, rx: 6}, tool), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('rect', {x: -8, y: 460, width: 16, height: 60, rx: 3}, tool), {fill: C.paper, stroke: C.ink, w: 3});
+  const ok = item({from: b, to: b + 1, delay: 300}); tag(ok, 'G01 X50', C.green, {x: 800, y: 230, size: 34});
+  const ok2 = item({from: b, to: b + 1, delay: 1200}); tag(ok2, '程式寫什麼，它就做什麼', C.green, {x: 800, y: 300}); check(ok2, 620, 300);
+  const bad = item({from: b + 1, to: b + 2}); tag(bad, 'G01 X500', C.red, {x: 800, y: 230, size: 34});
+  const bx = item({from: b + 1, to: b + 2, delay: 800}); cross(bx, 930, 520, 80, C.red);
+  const bad2 = item({from: b + 1, to: b + 2, delay: 1000}); tag(bad2, '也會很準確地做錯', C.red, {x: 800, y: 300});
+
+  /* Sprinter */
+  const VP = [560, 300, 1.6];
+  const v = item({from: b + 2, to: b + 5, x: VP[0], y: VP[1], s: VP[2]}); van(v);
+  const vt = item({from: b + 2, to: b + 5}); text(vt, '2017｜賓士 Sprinter', {x: 800, y: 200, size: 40, weight: 700});
+  const rb = item({from: b + 2, to: b + 3, x: 1250, y: 560, s: 1, delay: 500}); robot(rb);
+  const rbt = item({from: b + 2, to: b + 3, delay: 900}); tag(rbt, 'robot programming = CAM', C.gold, {x: 1260, y: 640, size: 26});
+  const gr = item({from: b + 3, to: b + 4}); gear(gr, 380, 330, 34, C.gold); tag(gr, '換新車款前', C.ink, {x: 380, y: 420}); tag(gr, '改了軟體設定', C.gold, {x: 380, y: 480});
+  const zoom = item({from: b + 3, to: b + 5, delay: 600});
+  paint(el('circle', {cx: VP[0] + 267 * 1.6, cy: VP[1] + 53 * 1.6, r: 26}, zoom), {stroke: C.red, w: 3});
+  paint(el('path', {d: `M${VP[0] + 267 * 1.6 + 22} ${VP[1] + 53 * 1.6 - 14} L1170 300`}, zoom), {stroke: C.red, w: 2});
+  paint(el('circle', {cx: 1260, cy: 330, r: 110}, zoom), {fill: C.paper, stroke: C.red, w: 3});
+  paint(el('path', {d: 'M1230 230 L1230 430'}, zoom), {stroke: C.muted, w: 10});
+  [0, 1, 2, 3, 4, 5].forEach(i => {
+    const cy = 260 + i * 28, miss = i === 2 || i === 4;
+    paint(el('circle', {cx: 1262, cy, r: 9}, zoom), miss ? {stroke: C.red, w: 2, dash: '3 3'} : {fill: C.ink});
+  });
+  const zt = item({from: b + 3, to: b + 5, delay: 1100}); tag(zt, '漏掉點焊', C.red, {x: 1260, y: 480, size: 28}); tag(zt, '車門框 + 鉸鏈補強件', C.muted, {x: 1260, y: 540, size: 22});
+  const tl = item({from: b + 4, to: b + 5});
+  paint(el('path', {d: 'M420 690 L1180 690'}, tl), {stroke: C.line, w: 3});
+  let tk = ''; for (let i = 0; i <= 30; i++) tk += `M${420 + i * 760 / 30} 684 L${420 + i * 760 / 30} 696 `;
+  paint(el('path', {d: tk}, tl), {stroke: C.line, w: 2});
+  text(tl, '9/11', {x: 420, y: 730, size: 26, weight: 700, fill: C.ink}); text(tl, '10/11', {x: 1180, y: 730, size: 26, weight: 700, fill: C.ink});
+  bar(tl, 420, 690, 760, 10, C.red, 300);
+  const tl2 = item({from: b + 4, to: b + 5, delay: 1300}); tag(tl2, '整整一個月', C.red, {x: 800, y: 640, size: 28}); tag(tl2, '廠內發現', C.ink, {x: 1180, y: 780});
+
+  /* CAE on the van */
+  const VQ = [560, 300, 1.6], VL = [290, 330, 1];
+  const hv = item({from: b + 5, to: b + 9, x: VQ[0], y: VQ[1], s: VQ[2], pos: {[b + 6]: VL}});
+  heatCells(hv, 'vanclip', 10, 18, 300, 122, 12, (x, y) => Math.abs(x - 267) / 260 + Math.abs(y - 53) / 400);
+  van(hv);
+  const q = item({from: b + 5, to: b + 6}); text(q, '少了焊點，撞車會怎樣？', {x: 800, y: 200, size: 44, weight: 700});
+  const q2 = item({from: b + 5, to: b + 6, delay: 500}); tag(q2, '總不能每台都拿去撞', C.muted, {x: 800, y: 600, size: 26});
+  const q3 = item({from: b + 5, to: b + 6, delay: 1000}); tag(q3, 'CAE 碰撞模擬', C.gold, {x: 800, y: 670, size: 30});
+  const p1 = item({from: b + 6, to: b + 9});
+  paint(el('rect', {x: 680, y: 300, width: 240, height: 180, rx: 14}, p1), {fill: C.paper, stroke: C.green, w: 3});
+  text(p1, '模擬 #1', {x: 800, y: 345, size: 30, weight: 700, fill: C.green}); check(p1, 800, 420, C.green, 2);
+  tag(p1, '整體來說，沒什麼影響', C.green, {x: 800, y: 540, size: 22});
+  const cal = item({from: b + 7, to: b + 9}); arrow(cal, 935, 390, 990, 390, C.muted); caliper(cal, 1000, 360); tag(cal, '抽檢真車，量焊接品質', C.blue, {x: 1080, y: 540, size: 22});
+  const p2 = item({from: b + 7, to: b + 9, delay: 700});
+  arrow(p2, 1170, 390, 1215, 390, C.muted);
+  paint(el('rect', {x: 1225, y: 300, width: 240, height: 180, rx: 14}, p2), {fill: C.paper, stroke: C.ink, w: 3});
+  text(p2, '模擬 #2', {x: 1345, y: 345, size: 30, weight: 700, fill: C.ink});
+  const p2s = item({from: b + 8, to: b + 9, cls: 'stamp'}); stampBox(p2s, '風險無法排除', C.red, 1345, 425, 30);
+  const p2t = item({from: b + 8, to: b + 9, delay: 500}); tag(p2t, '撞車表現可能變差', C.red, {x: 1345, y: 540, size: 22});
+
+  /* 153 vans */
+  const grid = item({from: b + 9, to: b + 11});
+  const cols = 17, gx = 800 - cols * 52 / 2 + 4, gy = 250;
+  const reds = new Set([7, 25, 43, 66, 88, 101, 123, 140]);
+  for (let i = 0; i < 153; i++) {
+    const x = gx + (i % cols) * 52, y = gy + Math.floor(i / cols) * 42;
+    const r = el('rect', {x, y, width: 42, height: 26, rx: 6, class: 'cell'}, grid);
+    r.style.fill = C.paper; r.style.stroke = C.ink; r.style.strokeWidth = 2; r.style.transitionDelay = (i * 7) + 'ms';
+    const w = el('rect', {x: x + 28, y: y + 5, width: 9, height: 8, rx: 2, class: 'cell'}, grid);
+    w.style.fill = C.muted; w.style.transitionDelay = (i * 7) + 'ms';
+  }
+  const gt = item({from: b + 9, to: b + 11, delay: 600}); text(gt, '153 台', {x: 800, y: 680, size: 48, weight: 700}); tag(gt, '2018 年 4 月：全部召回', C.ink, {x: 800, y: 190, size: 26});
+  const rr = item({from: b + 10, to: b + 11});
+  [...reds].forEach((i, k) => {
+    const x = gx + (i % cols) * 52, y = gy + Math.floor(i / cols) * 42;
+    const r = el('rect', {x, y, width: 42, height: 26, rx: 6, class: 'cell'}, rr);
+    r.style.fill = C.red; r.style.transitionDelay = (200 + k * 120) + 'ms';
+  });
+  const rt = item({from: b + 10, to: b + 11, delay: 1300}); tag(rt, '≈ 5% 真正少焊', C.red, {x: 600, y: 760, size: 26}); tag(rt, '分不出是哪幾台', C.ink, {x: 1000, y: 760, size: 26});
+
+  /* chain */
+  const ch1 = item({from: b + 11, to: b + 12}); const rr1 = G(ch1, 400, 520, .9); robot(rr1); cross(ch1, 420, 380, 70, C.red); tag(ch1, 'CAM 出了錯', C.red, {x: 420, y: 600, size: 28});
+  const ch2 = item({from: b + 11, to: b + 12, delay: 600}); arrow(ch2, 520, 440, 650, 440, C.muted); magnifier(ch2, 790, 420, 50); tag(ch2, 'CAE 找出風險', C.gold, {x: 800, y: 600, size: 28});
+  const ch3 = item({from: b + 11, to: b + 12, delay: 1200}); arrow(ch3, 930, 440, 1060, 440, C.muted); caliper(ch3, 1100, 400); tag(ch3, '真實資料讓答案改變', C.blue, {x: 1180, y: 600, size: 28});
+
+  /* chips */
+  const cp = item({from: b + 12, to: b + 13}); chip(cp, 380, 280, 260);
+  const cpt = item({from: b + 12, to: b + 13, delay: 400});
+  text(cpt, 'EDA', {x: 1080, y: 360, size: 96, weight: 700, fill: C.gold});
+  text(cpt, 'Electronic Design Automation', {x: 1080, y: 450, size: 28, fill: C.ink});
+  tag(cpt, '晶片的 CAD + CAE', C.ink, {x: 1080, y: 520, size: 28});
+  const num = item({from: b + 13, to: b + 14});
+  text(num, '208,000,000,000', {x: 800, y: 400, size: 110, weight: 700});
+  tag(num, '個電晶體 transistors', C.gold, {x: 800, y: 510, size: 30});
+  const num2 = item({from: b + 13, to: b + 14, delay: 700}); tag(num2, 'NVIDIA B200（2024）｜台積電製程', C.muted, {x: 800, y: 590, size: 24});
+  const fab = item({from: b + 14, to: b + 15});
+  chip(fab, 300, 330, 160, C.blue); tag(fab, '畫', C.blue, {x: 380, y: 580, size: 34});
+  const fab2 = item({from: b + 14, to: b + 15, delay: 500}); arrow(fab2, 510, 410, 610, 410, C.muted);
+  const hc2 = G(fab2, 640, 330); paint(el('rect', {x: 0, y: 0, width: 160, height: 160, rx: 12}, hc2), {fill: C.paper, stroke: C.gold, w: 4});
+  defClip('chipheat', '<rect x="10" y="10" width="140" height="140"/>');
+  heatCells(hc2, 'chipheat', 10, 10, 150, 150, 14, (x, y) => Math.hypot(x - 60, y - 60) / 120, 0);
+  tag(fab2, '算', C.gold, {x: 720, y: 580, size: 34});
+  const fab3 = item({from: b + 14, to: b + 15, delay: 1000}); arrow(fab3, 840, 410, 940, 410, C.muted); wafer(fab3, 1060, 410); tag(fab3, '晶圓廠：做', C.green, {x: 1060, y: 580, size: 34});
+  const fab4 = item({from: b + 14, to: b + 15, delay: 1600}); tag(fab4, '不可能用手畫｜做錯一次代價太高', C.red, {x: 800, y: 210, size: 26});
+}
+
+/* ================= SECTION 5  since 1999 ================= */
+{
+  const b = S5;
+  note(b, '課本是 1999 年寫的。那時候的分工很清楚：人負責畫，電腦負責算。');
+  note(b + 1, '這二十幾年，有兩個改變我們覺得很重要。');
+  note(b + 2, '第一個：電腦開始幫忙「想」形狀。這叫 generative design，生成式設計。');
+  note(b + 3, '以前是工程師先畫好形狀，再交給 CAE 檢查。');
+  note(b + 4, '現在反過來：工程師只告訴電腦，這個零件要接在哪裡、要承受多少力、用什麼材料、怎麼製造，電腦自己算出很多種形狀。');
+  note(b + 5, '通用汽車和 Autodesk 用這個方法，重新設計一個座椅支架。軟體提出了一百五十多種設計。');
+  note(b + 6, '他們選的那一個，原本八個零件變成一個，用 3D 列印做出來。重量輕了 40%，強度還多了 20%。');
+  note(b + 7, '不過要說清楚：這是概念驗證用的零件，還不是量產的零件。');
+  note(b + 8, '大家看這個形狀，是不是有點像骨頭？因為電腦只把材料放在需要受力的地方。');
+  note(b + 9, '第二個改變：模擬開始算進正式的安全評分。');
+  note(b + 10, '歐洲的新車評等 Euro NCAP，2009 年就開始在行人保護用模擬。');
+  note(b + 11, '2023 年，他們公布新規則：側面撞擊時，坐在另一側、沒被撞到那一邊的乘客，也可以用模擬來評。從 2024 年起，車廠一定要交模擬資料。');
+  note(b + 12, '但規則很有意思：車廠要先交模擬結果，Euro NCAP 再做真的測試，拿來比對。');
+  note(b + 13, '對得上，其他撞擊角度、其他座椅高度，就可以只用模擬來評。對不上，模擬的結果，就不算。');
+  note(b + 14, '這就是模擬今天的地位：可以用，但要先跟真的對過。');
+
+  const y99 = item({from: b, to: b + 2, x: 0, y: 0, pos: {[b + 1]: [0, -40, 1]}});
+  text(y99, '1999', {x: 800, y: 260, size: 120, weight: 700, fill: C.gold});
+  const hp = item({from: b, to: b + 2, delay: 500}); const hpg = G(hp, 580, 480, 1.6); dummy(hpg, C.blue); tag(hp, '人：畫', C.blue, {x: 580, y: 580, size: 30});
+  const cp = item({from: b, to: b + 2, delay: 900}); monitor(cp, 920, 380, 180, 120); tag(cp, '電腦：算', C.gold, {x: 1010, y: 580, size: 30});
+  const CH = ['① 電腦幫忙想形狀', '② 模擬算進正式評分'], CHX = [580, 1020];
+  CH.forEach((c, i) => {
+    const k = item({from: b + 1, to: b + 15, delay: 300 + i * 300, pos: {[b + 2]: [0, -540, 1]}}); tag(k, c, C.muted, {x: CHX[i], y: 700, size: 28});
+  });
+  [[b + 2, b + 9], [b + 9, b + 15]].forEach(([f, t], i) => { const k = item({from: f, to: t, delay: f === b + 2 ? 700 : 0}); tag(k, CH[i], C.gold, {x: CHX[i], y: 160, size: 28}); });
+
+  const gd = item({from: b + 2, to: b + 3, delay: 400});
+  text(gd, 'Generative design', {x: 800, y: 380, size: 80, weight: 700});
+  tag(gd, '生成式設計', C.ink, {x: 800, y: 470, size: 28});
+  const gd2 = item({from: b + 2, to: b + 3, delay: 1000}); tag(gd2, '電腦開始幫忙「想」形狀', C.gold, {x: 800, y: 550, size: 30});
+
+  /* old vs new */
+  const old = item({from: b + 3, to: b + 5});
+  text(old, '以前', {x: 240, y: 330, size: 32, weight: 700, fill: C.muted});
+  const op1 = G(old, 400, 380, 1.1); dummy(op1, C.blue);
+  arrow(old, 450, 330, 540, 330, C.muted);
+  const ob = G(old, 570, 280, .5); paint(el('path', {d: BRACKET}, ob), {fill: C.paper, stroke: C.blue, w: 5});
+  arrow(old, 690, 330, 780, 330, C.muted);
+  tag(old, 'CAE 檢查', C.gold, {x: 880, y: 330, size: 26}); check(old, 1000, 330, C.green);
+  const nw = item({from: b + 4, to: b + 5});
+  text(nw, '現在', {x: 240, y: 560, size: 32, weight: 700, fill: C.gold});
+  ['接在哪裡', '受多少力', '什麼材料', '怎麼製造'].forEach((s, i) => tag(nw, s, C.ink, {x: 400, y: 470 + i * 60, size: 22}));
+  arrow(nw, 490, 560, 580, 560, C.muted);
+  monitor(nw, 600, 500, 160, 100);
+  arrow(nw, 785, 560, 870, 560, C.muted);
+  const fan = item({from: b + 4, to: b + 5, delay: 700});
+  seed = 11; for (let i = 0; i < 8; i++) blob(fan, 930 + (i % 4) * 110, 510 + Math.floor(i / 4) * 110, 40, C.gold);
+
+  /* 150+ designs */
+  const many = item({from: b + 5, to: b + 6});
+  seed = 3; for (let i = 0; i < 18; i++) {
+    const k = el('g', {class: 'cell'}, many); k.style.transitionDelay = (i * 60) + 'ms';
+    blob(k, 300 + (i % 6) * 120, 330 + Math.floor(i / 6) * 120, 44, i === 8 ? C.gold : C.muted, i === 8 ? 4 : 2);
+  }
+  const mt = item({from: b + 5, to: b + 6}); tag(mt, '通用汽車 × Autodesk｜座椅支架', C.ink, {x: 800, y: 235, size: 26});
+  const mt2 = item({from: b + 5, to: b + 6, delay: 1200}); text(mt2, '150+', {x: 1250, y: 420, size: 110, weight: 700, fill: C.gold}); tag(mt2, '種設計', C.gold, {x: 1250, y: 510, size: 28});
+
+  /* the chosen bracket */
+  const org = item({from: b + 6, to: b + 9, x: 300, y: 260, s: 1.2});
+  organic(org);
+  media({src: 'gm_bracket.jpg', x: 260, y: 240, w: 460, h: 400, from: b + 6, to: b + 9, label: 'GM 座椅支架照片', optional: true});
+  const cr = item({from: b + 6, to: b + 9}); text(cr, '圖片來源：Autodesk', {x: 490, y: 670, size: 18, fill: C.muted});
+  [['8 個零件 → 1 個', C.ink], ['3D 列印', C.ink], ['重量 −40%', C.green], ['強度 +20%', C.green]].forEach(([s, c], i) => {
+    const k = item({from: b + 6, to: b + 8, delay: 300 + i * 400}); tag(k, s, c, {x: 1080, y: 300 + i * 80, size: 32});
+  });
+  const poc = item({from: b + 7, to: b + 8, cls: 'stamp'}); stampBox(poc, '概念驗證｜不是量產零件', C.red, 1080, 680, 30);
+  const bone = item({from: b + 8, to: b + 9, x: 900, y: 300, s: 1.4, delay: 300});
+  paint(el('path', {d: BONE}, bone), {fill: C.paper, stroke: C.muted, w: 3});
+  const bt = item({from: b + 8, to: b + 9, delay: 900}); tag(bt, '像骨頭？', C.ink, {x: 1095, y: 500, size: 30});
+  const bt2 = item({from: b + 8, to: b + 9, delay: 1500}); tag(bt2, '材料只放在需要受力的地方', C.green, {x: 1095, y: 570, size: 26});
+
+  /* Euro NCAP */
+  const en = item({from: b + 9, to: b + 10});
+  text(en, '模擬開始算進', {x: 800, y: 380, size: 64, weight: 700});
+  text(en, '正式的安全評分', {x: 800, y: 470, size: 64, weight: 700});
+  tag(en, 'Euro NCAP｜歐洲新車評等', C.gold, {x: 800, y: 570, size: 28});
+  const tl = item({from: b + 10, to: b + 12});
+  paint(el('path', {d: 'M300 640 L1300 640'}, tl), {stroke: C.line, w: 3});
+  const n1 = item({from: b + 10, to: b + 12, delay: 300});
+  paint(el('circle', {cx: 400, cy: 640, r: 12}, n1), {fill: C.blue});
+  text(n1, '2009', {x: 400, y: 590, size: 36, weight: 700, fill: C.blue}); tag(n1, '行人保護：用模擬', C.blue, {x: 400, y: 700});
+  const n2 = item({from: b + 11, to: b + 12});
+  paint(el('circle', {cx: 800, cy: 640, r: 12}, n2), {fill: C.gold});
+  text(n2, '2023', {x: 800, y: 590, size: 36, weight: 700, fill: C.gold}); tag(n2, '側撞：另一側乘客也能用模擬評', C.gold, {x: 800, y: 700});
+  const car2 = item({from: b + 11, to: b + 12, delay: 400});
+  paint(el('rect', {x: 680, y: 260, width: 240, height: 130, rx: 34}, car2), {fill: C.paper, stroke: C.ink, w: 3});
+  paint(el('path', {d: 'M860 270 L860 380'}, car2), {stroke: C.ink, w: 2});
+  paint(el('rect', {x: 770, y: 274, width: 46, height: 40, rx: 8}, car2), {fill: C.gold, stroke: C.gold, w: 2});
+  paint(el('rect', {x: 770, y: 336, width: 46, height: 40, rx: 8}, car2), {fill: C.paper, stroke: C.muted, w: 2});
+  arrow(car2, 793, 500, 793, 400, C.red, 5);
+  tag(car2, '沒被撞到那一邊', C.gold, {x: 793, y: 220, size: 22});
+  tag(car2, '撞擊', C.red, {x: 880, y: 470, size: 20});
+  const n3 = item({from: b + 11, to: b + 12, delay: 1600});
+  paint(el('circle', {cx: 1200, cy: 640, r: 12}, n3), {fill: C.red});
+  text(n3, '2024', {x: 1200, y: 590, size: 36, weight: 700, fill: C.red}); tag(n3, '車廠一定要交模擬資料', C.red, {x: 1200, y: 700});
+  const fl = item({from: b + 12, to: b + 14});
+  tag(fl, '① 車廠先交模擬', C.blue, {x: 400, y: 380, size: 28});
+  arrow(fl, 530, 380, 620, 380, C.muted);
+  const fl2 = item({from: b + 12, to: b + 14, delay: 500}); tag(fl2, '② 做真的測試', C.ink, {x: 760, y: 380, size: 28}); arrow(fl2, 870, 380, 960, 380, C.muted);
+  const fl3 = item({from: b + 12, to: b + 14, delay: 1000}); tag(fl3, '③ 比對', C.gold, {x: 1060, y: 380, size: 32});
+  const br1 = item({from: b + 13, to: b + 14});
+  arrow(br1, 1060, 420, 900, 540, C.green); check(br1, 860, 560, C.green, 1.4);
+  tag(br1, '對得上：其他角度、其他座椅高度，只用模擬評', C.green, {x: 640, y: 620, size: 26});
+  const br2 = item({from: b + 13, to: b + 14, delay: 800});
+  arrow(br2, 1090, 420, 1180, 540, C.red); cross(br2, 1200, 570, 36, C.red, 6);
+  tag(br2, '對不上：模擬結果不算', C.red, {x: 1200, y: 640, size: 26});
+  const sm = item({from: b + 14, to: b + 15});
+  text(sm, '可以用，', {x: 800, y: 390, size: 72, weight: 700});
+  text(sm, '但要先跟真的對過。', {x: 800, y: 490, size: 72, weight: 700, fill: C.gold});
+}
+
+/* ================= SECTION 7  conclusion ================= */
+{
+  const b = S7;
+  note(b, '最後，回到開場的問題：模擬，能不能完全取代真的撞車？');
+  note(b + 1, '2019 年，德國汽車協會 ADAC 和一家電腦雜誌做了一個實驗。他們拿兩台樂高車，先在超級電腦上撞。');
+  note(b + 2, '模型切了大約四千五百萬個元素，是前面那台皮卡車的十五倍，用一千個處理器核心算了一個禮拜。');
+  note(b + 3, '然後，再拿真的樂高車去撞。結果，真的損壞比模擬預測的嚴重很多。');
+  note(b + 4, '當然，樂高積木是一塊一塊卡在一起的，本來就比鋼板難模擬。但這也提醒我們：模型跟現實之間，一定有差距。');
+  note(b + 5, '所以我們的答案是：不能完全取代。連 Euro NCAP 自己的研究報告也這樣寫：模擬沒辦法完全取代真實測試，但兩個結合起來，評估會更完整。');
+  note(b + 6, 'CAD 畫，CAE 算，CAM 做。最後，還是要用真的去驗證。');
+  note(b + 7, '以上是第七組的報告，謝謝大家。');
+
+  const fq = item({from: b, to: b + 1});
+  text(fq, '模擬，能不能', {x: 800, y: 430, size: 66, weight: 700});
+  text(fq, '完全取代真的撞車？', {x: 800, y: 530, size: 66, weight: 700});
+  tag(fq, '現在回答', C.gold, {x: 800, y: 650, size: 26});
+  const lg = item({from: b + 1, to: b + 2});
+  seed = 5; legoCar(lg, 330, 380, 'var(--blue)'); legoCar(lg, 1030, 380, 'var(--gold)');
+  arrow(lg, 620, 430, 740, 430, C.red, 5); arrow(lg, 980, 430, 860, 430, C.red, 5);
+  tag(lg, '2019｜ADAC + 電腦雜誌', C.ink, {x: 800, y: 240, size: 28});
+  const lg2 = item({from: b + 1, to: b + 2, delay: 800}); tag(lg2, '先在超級電腦上撞', C.gold, {x: 800, y: 600, size: 30});
+  const bars = item({from: b + 2, to: b + 3});
+  const L = 900 / 45;
+  text(bars, '皮卡車', {x: 330, y: 360, size: 28, anchor: 'end'}); bar(bars, 350, 360, 3 * L, 40, C.muted, 200); text(bars, '3,000,000', {x: 350 + 3 * L + 16, y: 360, size: 30, weight: 700, anchor: 'start', fill: C.muted});
+  text(bars, '樂高車', {x: 330, y: 470, size: 28, anchor: 'end'}); bar(bars, 350, 470, 45 * L, 40, C.gold, 700); text(bars, '45,000,000', {x: 350 + 45 * L - 16, y: 470, size: 30, weight: 700, anchor: 'end', fill: C.paper});
+  const bars2 = item({from: b + 2, to: b + 3, delay: 1700}); tag(bars2, '15 倍', C.gold, {x: 800, y: 580, size: 40}); tag(bars2, '約 1,000 個核心，算了一週', C.muted, {x: 800, y: 660, size: 24});
+  tag(bars2, 'elements', C.muted, {x: 800, y: 260, size: 22});
+  const sim = item({from: b + 3, to: b + 4});
+  seed = 9; legoCar(sim, 310, 380, 'var(--blue)', .05);
+  tag(sim, '模擬', C.gold, {x: 430, y: 270, size: 30});
+  paint(el('path', {d: 'M800 240 L800 620'}, sim), {stroke: C.line, w: 2, dash: '8 8'});
+  const real = item({from: b + 3, to: b + 4, delay: 800});
+  seed = 21; legoCar(real, 1030, 380, 'var(--blue)', 1);
+  tag(real, '真實', C.blue, {x: 1150, y: 270, size: 30});
+  const rt = item({from: b + 3, to: b + 4, delay: 1500}); tag(rt, '真的損壞，比預測嚴重很多', C.red, {x: 800, y: 700, size: 30});
+  const cv = item({from: b + 4, to: b + 5});
+  const brick = G(cv, 700, 300, 2.2);
+  paint(el('rect', {x: 0, y: 10, width: 90, height: 36, rx: 4}, brick), {fill: 'var(--gold)', stroke: C.ink, w: 1.5});
+  for (const sx of [12, 54]) paint(el('rect', {x: sx, y: 2, width: 24, height: 8, rx: 2}, brick), {fill: 'var(--gold)', stroke: C.ink, w: 1.2});
+  tag(cv, '樂高一塊一塊卡在一起，比鋼板難模擬', C.muted, {x: 800, y: 500, size: 26});
+  const cv2 = item({from: b + 4, to: b + 5, delay: 900}); tag(cv2, '模型跟現實之間，一定有差距', C.gold, {x: 800, y: 590, size: 34});
+  const ans = item({from: b + 5, to: b + 6});
+  text(ans, '不能完全取代', {x: 800, y: 400, size: 110, weight: 700});
+  const ans2 = item({from: b + 5, to: b + 6, delay: 800}); tag(ans2, 'Euro NCAP：模擬 + 真實測試，評估更完整', C.gold, {x: 800, y: 540, size: 28});
+  const tb = item({from: b + 6, x: CENTER4.test[0], y: CENTER4.test[1], s: CENTER4.test[2], pos: {[END]: BOTTOM.test}, delay: 900});
+  block(tb, '驗證', '真實測試 Real test', C.red);
+  const dmy = G(tb, 170, 200, 1.4); dummy(dmy, C.red);
+  tag(tb, '撞', C.red, {x: 170, y: 258, size: 28});
+  const tbA = item({from: b + 6, to: b + 7, delay: 600}); arrow(tbA, 1072, 450, 1110, 450, C.muted);
+  const fin2 = item({from: b + 6, to: b + 7, delay: 1500}); text(fin2, '最後，還是要用真的去驗證。', {x: 800, y: 680, size: 40, weight: 700});
+  const ty = item({from: b + 7});
+  text(ty, '謝謝', {x: 800, y: 340, size: 130, weight: 700});
+  text(ty, 'Thank you', {x: 800, y: 460, size: 40, fill: C.muted});
+  tag(ty, '第七組', C.gold, {x: 800, y: 550, size: 30});
+}
+
+/* ---------- speaker notes (press N) ---------- */
+const NOTES = [
+  '各位同學老師大家好，我們是第七組，我開始報告之前我想要讓大家看個影片。',
+  '【播放影片】',
+  '好，先問大家一個問題：左邊跟右邊，哪一邊是真的？',
+  '答案是：左邊是真的車，右邊是電腦算出來的。兩邊的變形，看起來非常接近。',
+  '那問題來了：真的撞一次就知道結果，為什麼車廠還要花這麼多力氣做電腦模擬？主要有三個原因。',
+  '第一，成本。真的撞一次，那台車就報廢了。車上的測試假人雖然可以重複使用，但最高階的一個，就要將近一百萬美元。',
+  '電腦模擬不用毀掉任何一台車，設計改一下，就可以再撞一次。',
+  '第二，時間。車子還沒做出來，工程師就可以先在電腦裡撞。哪裡太弱，先改好再做。',
+  '第三，看得到裡面。真實測試只能在固定幾個位置裝感測器；模擬可以看到每一個零件受了多少力、哪裡快要斷。',
+  '今天我們就照這個順序介紹。',
+  '最後，我們會回答一個問題：既然模擬這麼好用，它能不能完全取代真的撞車？'
+];
+NOTES.push(...MORE_NOTES);
+if (NOTES.length !== END + 1) console.error('notes/beat mismatch', NOTES.length, END + 1);
+const LAST = NOTES.length - 1;
+
+/* ---------- render ---------- */
+const vlayer = document.getElementById('vlayer'), vid = document.getElementById('vid'), vph = document.getElementById('vph');
+const notes = document.getElementById('notes'), hint = document.getElementById('hint');
+vid.addEventListener('error', () => { vph.style.display = 'flex'; });
+let beat = 0, prev = 0;
+
+function render() {
+  for (const it of items) {
+    const vis = beat >= it.from && beat < it.to;
+    it.a.style.transitionDelay = vis && !it.a.classList.contains('on') ? it.delay + 'ms' : '0ms';
+    it.a.classList.toggle('on', vis);
+    let p = [it.x, it.y, it.s];
+    if (it.pos) for (const k of Object.keys(it.pos).map(Number).sort((a, b) => a - b)) if (beat >= k) p = it.pos[k];
+    it.o.style.transform = `translate(${p[0]}px, ${p[1]}px) scale(${p[2]})`;
+    let ov = 1;
+    if (it.op) for (const k of Object.keys(it.op).map(Number).sort((a, b) => a - b)) if (beat >= k) ov = it.op[k];
+    it.o.style.opacity = ov;
+  }
+  for (const m of medias) m.d.classList.toggle('on', beat >= m.from && beat < m.to);
+  for (const p of panels) { p.d.classList.toggle('on', p.vis(beat)); p.update(beat); }
+  const showVid = beat >= 1 && beat <= 3;
+  vlayer.classList.toggle('on', showVid);
+  try {
+    if (beat === 1 && prev === 0) { vid.currentTime = 0; vid.play().catch(() => {}); }
+    else if (beat === 1) { vid.play().catch(() => {}); }
+    else vid.pause();
+  } catch (e) {}
+  notes.innerHTML = `<small>${beat} / ${LAST}</small>${NOTES[beat]}`;
+  prev = beat;
+}
+function go(d) {
+  const n = Math.max(0, Math.min(LAST, beat + d));
+  if (n === beat) return;
+  beat = n; hint.style.opacity = 0; render();
+}
+addEventListener('keydown', e => {
+  const k = e.key;
+  if (['ArrowRight', ' ', 'PageDown', 'Enter', 'ArrowDown'].includes(k)) { e.preventDefault(); go(1); }
+  else if (['ArrowLeft', 'PageUp', 'Backspace', 'ArrowUp'].includes(k)) { e.preventDefault(); go(-1); }
+  else if (k === 'Home') { beat = 0; render(); }
+  else if (k === 'n' || k === 'N') { notes.style.display = notes.style.display === 'block' ? 'none' : 'block'; }
+  else if (k === 'f' || k === 'F') { document.fullscreenElement ? document.exitFullscreen() : document.documentElement.requestFullscreen().catch(() => {}); }
+});
+addEventListener('click', () => go(1));
+
+function fit() {
+  const s = Math.min(innerWidth / 1600, innerHeight / 900);
+  document.getElementById('stage').style.transform = `translate(-50%, -50%) scale(${s})`;
+}
+addEventListener('resize', fit);
+fit(); render();
+requestAnimationFrame(() => requestAnimationFrame(() => document.body.classList.remove('still')));
+</script>
+</body>
+</html>
